@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "eventbridge-backbone"
+version = "0.0.0"
+description = "Eventbridge Backbone"
+authors = ["Diren"]
+classifiers=[
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.10",
+]
+repository="https://github.com/direnakkoc/eventbridge-backbone"
+readme = "README.md"
+keywords = ["serverless", "cdk"]
+packages = [
+    { include = "**/*", from = "handlers" },
+    { include = "cdk" },
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.10.0"
+boto3 = "^1.28.50"
+aws-lambda-powertools = "^2.30.2"
+
+[tool.poetry.group.dev.dependencies]
+aws-cdk-aws-lambda-python-alpha = "^2.96.2a0"
+aws-cdk-lib = "^2.96.2"
+black = "^23.9.1"
+cdk-nag = "^2.27.135"
+constructs = "^10.2.70"
+gitpython = "^3.1.36"
+mypy = "^1.5.1"
+pre-commit = "^3.4.0"
+pycodestyle = "^2.11.0"
+pytest = "^7.4.2"
+pytest-cov = "^4.1.0"
+pytest-html = "^3.2.0"
+pytest-mock = "^3.11.1"
+pytest-sugar = "^0.9.7"
+pyyaml = "^6.0.1"
+ruff = "^0.0.272"
+syrupy = "^4.5.0"
+toml = "^0.10.2"
+types-cachetools = "^5.3.0.6"
+types-pyyaml = "^6.0.12.11"
+
+
+[tool.ruff]
+  select = [
+    # Flake8 ruleset
+    "F", # Pyflake
+    "E", # Pycodestyle
+    "W", # Pycodestyle
+    "I001"# isort
+]
+  src = [".", "handlers"]

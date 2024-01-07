@@ -1,28 +1,74 @@
 #!/usr/bin/env python3
 import os
 
-import aws_cdk as cdk
+from aws_cdk import App, Environment
+from boto3 import client, session
+from stacks.bus_stage import BusStage
+from stacks.delivery_stage import DeliveryStage
+from stacks.order_stage import OrderStage
+from stacks.pipeline_stack import PipelineStack
 
-from eventbridge_backbone.eventbridge_backbone_stack import EventbridgeBackboneStack
+ORDER_SERVICE_IDENTIFIER = "order-service"
+DELIVERY_SERVICE_IDENTIFIER = "delivery-service"
+account = client("sts").get_caller_identity()["Account"]
+region = session.Session().region_name
 
 
-app = cdk.App()
-EventbridgeBackboneStack(app, "EventbridgeBackboneStack",
-    # If you don't specify 'env', this stack will be environment-agnostic.
-    # Account/Region-dependent features and context lookups will not work,
-    # but a single synthesized template can be deployed anywhere.
+app = App()
 
-    # Uncomment the next line to specialize this stack for the AWS Account
-    # and Region that are implied by the current CLI configuration.
+cicd_account = os.environ.get("cicd-account")
+bus_account = os.environ.get("bus-account")
+order_account = os.environ.get("order-service-account")
+delivery_account = os.environ.get("delivery-service-account")
 
-    #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+bus_stage = BusStage(
+    app,
+    "DirenBusStack",
+    env=Environment(
+        account=os.environ.get(bus_account, account),
+        region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
+    ),
+    application_account_by_identifier={
+        ORDER_SERVICE_IDENTIFIER: order_account,
+        DELIVERY_SERVICE_IDENTIFIER: delivery_account,
+    },
+)
 
-    # Uncomment the next line if you know exactly what Account and Region you
-    # want to deploy the stack to. */
+order_stage = OrderStage(
+    app,
+    "DirenOrderServiceStack",
+    env=Environment(
+        account=os.environ.get(order_account, account),
+        region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
+    ),
+    identifier=ORDER_SERVICE_IDENTIFIER,
+    bus_account=bus_account,
+)
 
-    #env=cdk.Environment(account='123456789012', region='us-east-1'),
+delivery_stage = DeliveryStage(
+    app,
+    "DirenDeliveryServiceStack",
+    env=Environment(
+        account=os.environ.get(delivery_account, account),
+        region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
+    ),
+    identifier=DELIVERY_SERVICE_IDENTIFIER,
+    bus_account=bus_account,
+)
 
-    # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-    )
-
+pipeline_stack = PipelineStack(
+    app,
+    "DirenPipelineStack",
+    env=Environment(
+        account=os.environ.get("cicd-account", account),
+        region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
+    ),
+    stages=[bus_stage, order_stage, delivery_stage],
+    accounts={
+        "cicd-account": cicd_account,
+        "bus-account": bus_account,
+        "order-service-account": order_account,
+        "delivery-service-account": delivery_account,
+    },
+)
 app.synth()

@@ -1,10 +1,11 @@
 import os
 
-from aws_cdk import core
-from base_stage import BaseStage, BaseStageProps
+from aws_cdk import Environment
 from boto3 import client, session
 from constructs import Construct
-from order_stack import OrderServiceStack
+
+from .base_stage import BaseStage, BaseStageProps
+from .order_stack import OrderServiceStack
 
 account = client("sts").get_caller_identity()["Account"]
 region = session.Session().region_name
@@ -17,9 +18,9 @@ class OrderStage(BaseStage):
         OrderServiceStack(
             self,
             "DirenOrderServiceStack",
-            env=core.Environment(
+            env=Environment(
                 account=os.environ.get("order-service-account", account),
-                region=os.environ.get("eu-west-1", region),
+                region=os.environ.get("AWS_DEFAULT_REGION", region),
             ),
             bus_account=props.bus_account,
             identifier="order-service",

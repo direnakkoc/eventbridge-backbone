@@ -3,10 +3,11 @@ import os
 
 from aws_cdk import App, Environment
 from boto3 import client, session
-from stacks.bus_stage import BusStage
-from stacks.delivery_stage import DeliveryStage
-from stacks.order_stage import OrderStage
-from stacks.pipeline_stack import PipelineStack
+
+from cdk.stacks.bus_stage import BusStage
+from cdk.stacks.delivery_stage import DeliveryStage
+from cdk.stacks.order_stage import OrderStage
+from cdk.stacks.pipeline_stack import PipelineStack
 
 ORDER_SERVICE_IDENTIFIER = "order-service"
 DELIVERY_SERVICE_IDENTIFIER = "delivery-service"
@@ -25,7 +26,7 @@ bus_stage = BusStage(
     app,
     "DirenBusStack",
     env=Environment(
-        account=os.environ.get(bus_account, account),
+        account=os.environ.get("bus-account", account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
     application_account_by_identifier={
@@ -38,7 +39,7 @@ order_stage = OrderStage(
     app,
     "DirenOrderServiceStack",
     env=Environment(
-        account=os.environ.get(order_account, account),
+        account=os.environ.get("order-service-account", account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
     identifier=ORDER_SERVICE_IDENTIFIER,
@@ -49,7 +50,7 @@ delivery_stage = DeliveryStage(
     app,
     "DirenDeliveryServiceStack",
     env=Environment(
-        account=os.environ.get(delivery_account, account),
+        account=os.environ.get("delivery-service-account", account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
     identifier=DELIVERY_SERVICE_IDENTIFIER,

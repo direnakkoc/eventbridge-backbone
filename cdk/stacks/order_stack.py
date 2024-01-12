@@ -10,10 +10,11 @@ from aws_cdk import (
 from aws_cdk import (
     aws_events_targets as targets,
 )
-from base_stack import BaseStack, BaseStackProps
 from constructs import Construct
 
 from cdk.constants import ENVIRONMENT, LAMBDA_BUILD_DIR, SERVICE_NAME
+
+from .base_stack import BaseStack, BaseStackProps
 
 
 class OrderServiceStack(BaseStack):

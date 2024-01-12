@@ -20,7 +20,7 @@ class DeliveryStage(BaseStage):
             "DirenDeliveryServiceStack",
             env=Environment(
                 account=os.environ.get("delivery-service-account", account),
-                region=os.environ.get("eu-west-1", region),
+                region=os.environ.get("AWS_DEFAULT_REGION", region),
             ),
             identifier="delivery-service",
             bus_account=props.bus_account,

@@ -2,7 +2,6 @@ from aws_cdk import (
     Aws,
     CfnOutput,
     Stack,
-    StackProps,
 )
 from aws_cdk import (
     aws_events as events,
@@ -16,12 +15,6 @@ from aws_cdk import (
 from aws_cdk.aws_events_targets import CloudWatchLogGroup
 from constructs import Construct
 
-
-class BaseStackProps(StackProps):
-    bus_account: str
-    identifier: str
-
-
 """
  Base stack class used for any application requiring a local bus
  with logs and permissions to receive events from the global bus.
@@ -33,11 +26,13 @@ class BaseStack(Stack):
     global_bus: events.IEventBus
     global_bus_put_events_statement: iam.PolicyStatement
 
-    def __init__(self, scope: Construct, id: str, props: BaseStackProps) -> None:
-        super().__init__(scope, id, props)
+    def __init__(
+        self, scope: Construct, id: str, bus_account: str, identifier: str
+    ) -> None:
+        super().__init__(scope, id, bus_account, identifier)
 
         global_bus_arn = (
-            f"arn:aws:events:{Aws.REGION}:{props.bus_account}:event-bus/global-bus"
+            f"arn:aws:events:{Aws.REGION}:{bus_account}:event-bus/global-bus"
         )
         self.global_bus = events.EventBus.from_event_bus_arn(
             self, "GlobalBus", global_bus_arn
@@ -54,7 +49,7 @@ class BaseStack(Stack):
         )
 
         local_bus = events.EventBus(
-            self, "LocalBus", event_bus_name=f"local-bus-{props.identifier}"
+            self, "LocalBus", event_bus_name=f"local-bus-{identifier}"
         )
 
         CfnOutput(self, "localBusName", value=local_bus.event_bus_name)
@@ -63,7 +58,7 @@ class BaseStack(Stack):
             self,
             "LocalBusPolicy",
             event_bus_name=local_bus.event_bus_name,
-            statement_id=f"local-bus-policy-stmt-{props.identifier}",
+            statement_id=f"local-bus-policy-stmt-{identifier}",
             statement={
                 "Principal": {"AWS": self.global_bus.env.account},
                 "Action": "events:PutEvents",

@@ -3,8 +3,8 @@ from typing import Dict
 from aws_cdk import (
     Aws,
     CfnOutput,
+    Environment,
     Stack,
-    StackProps,
     aws_events_targets,
 )
 from aws_cdk import (
@@ -16,12 +16,6 @@ from aws_cdk import (
 from aws_cdk.aws_events_targets import CloudWatchLogGroup
 from constructs import Construct
 
-
-# check the type??
-class BusStackProps(StackProps):
-    application_account_by_identifier: Dict[str, str]
-
-
 """
  Stack to create a global EventBus. All applications post
  cross-domain events to this bus.
@@ -32,10 +26,10 @@ class BusStackProps(StackProps):
 
 
 class BusStack(Stack):
-    bus: events.EventBus
-
-    def __init__(self, scope: Construct, id: str, props: BusStackProps) -> None:
-        super().__init__(scope, id, props)
+    def __init__(
+        self, scope: Construct, id: str, identifier: Dict, env: Environment
+    ) -> None:
+        super().__init__(scope, id, identifier, env)
 
         bus_log_group = logs.LogGroup(
             self, "GlobalBusLogs", retention=logs.RetentionDays.ONE_WEEK
@@ -51,11 +45,7 @@ class BusStack(Stack):
             event_bus_name=bus.event_bus_name,
             statement_id="global-bus-policy-stmt",
             statement={
-                "Principal": {
-                    "AWS": list(
-                        props.get("application_account_by_identifier", {}).values()
-                    )
-                },
+                "Principal": {"AWS": list(("identifier", {}).values())},
                 "Action": "events:PutEvents",
                 "Resource": bus.event_bus_arn,
                 "Effect": "Allow",
@@ -70,10 +60,8 @@ class BusStack(Stack):
             targets=[CloudWatchLogGroup(bus_log_group)],
         )
 
-        for identifier, application_account in props.get(
-            "application_account_by_identifier", {}
-        ).items():
-            normalised_identifier = identifier.capitalize()
+        for id, application_account in ("identifier", {}).items():
+            normalised_identifier = id.capitalize()
             local_bus_arn = (
                 f"arn:aws:events:{Aws.REGION}:{application_account}"
                 ":event-bus/local-bus-{identifier}"
@@ -83,7 +71,7 @@ class BusStack(Stack):
                 f"globalTo{normalised_identifier}",
                 event_bus=bus,
                 rule_name=f"globalTo{normalised_identifier}",
-                event_pattern={"source": [{"anything-but": identifier}]},
+                event_pattern={"source": [{"anything-but": id}]},
             )
             rule.add_target(
                 aws_events_targets.EventBus(

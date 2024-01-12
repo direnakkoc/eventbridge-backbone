@@ -25,45 +25,41 @@ delivery_account = os.environ.get("delivery-service-account")
 bus_stage = BusStage(
     app,
     "DirenBusStack",
+    identifier={
+        ORDER_SERVICE_IDENTIFIER: order_account,
+        DELIVERY_SERVICE_IDENTIFIER: delivery_account,
+    },
     env=Environment(
         account=os.environ.get("bus-account", account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
-    application_account_by_identifier={
-        ORDER_SERVICE_IDENTIFIER: order_account,
-        DELIVERY_SERVICE_IDENTIFIER: delivery_account,
-    },
 )
 
 order_stage = OrderStage(
     app,
     "DirenOrderServiceStack",
+    bus_account=bus_account,
+    identifier=ORDER_SERVICE_IDENTIFIER,
     env=Environment(
         account=os.environ.get("order-service-account", account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
-    identifier=ORDER_SERVICE_IDENTIFIER,
-    bus_account=bus_account,
 )
 
 delivery_stage = DeliveryStage(
     app,
     "DirenDeliveryServiceStack",
+    bus_account=bus_account,
+    identifier=DELIVERY_SERVICE_IDENTIFIER,
     env=Environment(
         account=os.environ.get("delivery-service-account", account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
-    identifier=DELIVERY_SERVICE_IDENTIFIER,
-    bus_account=bus_account,
 )
 
 pipeline_stack = PipelineStack(
     app,
     "DirenPipelineStack",
-    env=Environment(
-        account=os.environ.get("cicd-account", account),
-        region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
-    ),
     stages=[bus_stage, order_stage, delivery_stage],
     accounts={
         "cicd-account": cicd_account,
@@ -71,5 +67,9 @@ pipeline_stack = PipelineStack(
         "order-service-account": order_account,
         "delivery-service-account": delivery_account,
     },
+    env=Environment(
+        account=os.environ.get("cicd-account", account),
+        region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
+    ),
 )
 app.synth()

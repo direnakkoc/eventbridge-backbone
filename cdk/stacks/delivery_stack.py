@@ -2,6 +2,7 @@ from aws_cdk import (
     Aws,
     CfnOutput,
     Duration,
+    Environment,
     aws_events,
     aws_lambda,
     aws_lambda_python_alpha,
@@ -14,16 +15,21 @@ from constructs import Construct
 
 from cdk.constants import ENVIRONMENT, LAMBDA_BUILD_DIR, SERVICE_NAME
 
-from .base_stack import BaseStack, BaseStackProps
+from .base_stack import BaseStack
 
 
 class DeliveryServiceStack(BaseStack):
     local_bus: aws_events.EventBus
-    identifier: str
 
-    def __init__(self, scope: Construct, id: str, props: BaseStackProps) -> None:
-        super().__init__(scope, id, props)
-        self.identifier = props.identifier
+    def __init__(
+        self,
+        scope: Construct,
+        id: str,
+        bus_account: str,
+        identifier: str,
+        env: Environment,
+    ) -> None:
+        super().__init__(scope, id, bus_account, identifier, env)
         self.create_order_delivery_function()
 
     def create_order_delivery_function(self) -> None:

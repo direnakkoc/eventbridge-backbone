@@ -1,8 +1,8 @@
 from typing import Dict, List
 
 from aws_cdk import (
+    Environment,
     Stack,
-    StackProps,
     Stage,
     pipelines,
 )
@@ -12,14 +12,16 @@ from aws_cdk import (
 from constructs import Construct
 
 
-class PipelineStackProps(StackProps):
-    stages: List[Stage]
-    accounts: Dict[str, str]
-
-
 class PipelineStack(Stack):
-    def __init__(self, scope: Construct, id: str, props: PipelineStackProps) -> None:
-        super().__init__(scope, id, props)
+    def __init__(
+        self,
+        scope: Construct,
+        id: str,
+        stages: List[Stage],
+        accounts: Dict,
+        env: Environment,
+    ) -> None:
+        super().__init__(scope, id, stages, accounts, env)
 
         code_star_connection = code_star_connections.CfnConnection(
             self,
@@ -28,9 +30,7 @@ class PipelineStack(Stack):
             provider_type="GitHub",
         )
 
-        cdk_context_args = [
-            f"-c {key}={value}" for key, value in props.accounts.items()
-        ]
+        cdk_context_args = [f"-c {key}={value}" for key, value in accounts.items()]
 
         pipeline = pipelines.CodePipeline(
             self,
@@ -54,5 +54,5 @@ class PipelineStack(Stack):
         )
 
         wave = pipeline.add_wave("ApplicationWave")
-        for stage in props.stages:
+        for stage in stages:
             wave.add_stage(stage)

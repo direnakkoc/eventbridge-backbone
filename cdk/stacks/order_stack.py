@@ -1,9 +1,10 @@
 from aws_cdk import (
     Aws,
     CfnOutput,
-    Environment,
+    Stack,
     aws_apigateway,
     aws_events,
+    aws_iam,
     aws_lambda,
     aws_lambda_python_alpha,
     aws_logs,
@@ -15,29 +16,36 @@ from constructs import Construct
 
 from cdk.constants import ENVIRONMENT, LAMBDA_BUILD_DIR, SERVICE_NAME
 
-from .base_stack import BaseStack
 
-
-class OrderServiceStack(BaseStack):
+class OrderServiceStack(Stack):
     def __init__(
         self,
         scope: Construct,
         id: str,
-        bus_account: aws_events.EventBus,
-        identifier: str,
-        env: Environment,
+        bus_account,
+        identifier,
+        **kwargs,
     ) -> None:
-        super().__init__(scope, id, bus_account, identifier, env)
+        super().__init__(scope, id, **kwargs)
+        self.bus_account = bus_account
+        self.identifier = identifier
+        self.global_bus = aws_events.EventBus.from_event_bus_name(
+            self, "GlobalBus", "global-bus"
+        )
+        self.local_bus = aws_events.EventBus.from_event_bus_name(
+            self, "LocalBus", f"local-bus-{identifier}"
+        )
+
         self.create_order_create_function()
         self.create_delivery_update_function()
 
-    def create_order_create_function(self) -> None:
+    def create_order_create_function(self) -> aws_lambda_python_alpha.PythonFunction:
         create_order_function = aws_lambda_python_alpha.PythonFunction(
             self,
             "CreateOrderFunction",
             function_name=f"{SERVICE_NAME}-handle-order-create-{ENVIRONMENT}",
             index="order_handler/handler.py",
-            enrty=LAMBDA_BUILD_DIR,
+            entry=LAMBDA_BUILD_DIR,
             environment={
                 "ENVIRONMENT": ENVIRONMENT,
                 "SERVICE_NAME": SERVICE_NAME,
@@ -51,7 +59,13 @@ class OrderServiceStack(BaseStack):
             log_retention=aws_logs.RetentionDays.ONE_WEEK,
             tracing=aws_lambda.Tracing.ACTIVE,
         )
-        create_order_function.add_to_role_policy(self.global_bus_put_events_statement)
+        create_order_function.add_to_role_policy(
+            aws_iam.PolicyStatement(
+                effect=aws_iam.Effect.ALLOW,
+                resources=[self.global_bus.event_bus_arn],
+                actions=["events:PutEvents"],
+            )
+        )
         api = aws_apigateway.RestApi(self, "OrderApi", rest_api_name="order")
         api.root.add_method(
             "POST", aws_apigateway.LambdaIntegration(create_order_function)
@@ -63,7 +77,7 @@ class OrderServiceStack(BaseStack):
             value=f"https://{api.rest_api_id}.execute-api.{self.region}.{self.url_suffix}/{api.deployment_stage.stage_name}",
         )
 
-    def create_delivery_update_function(self) -> None:
+    def create_delivery_update_function(self) -> aws_lambda_python_alpha.PythonFunction:
         delivery_update_function = aws_lambda_python_alpha.PythonFunction(
             self,
             "DeliveryUpdateFunction",
@@ -84,7 +98,11 @@ class OrderServiceStack(BaseStack):
             tracing=aws_lambda.Tracing.ACTIVE,
         )
         delivery_update_function.add_to_role_policy(
-            self.global_bus_put_events_statement
+            aws_iam.PolicyStatement(
+                effect=aws_iam.Effect.ALLOW,
+                resources=[self.global_bus.event_bus_arn],
+                actions=["events:PutEvents"],
+            )
         )
 
         # React to delivery events
@@ -93,7 +111,7 @@ class OrderServiceStack(BaseStack):
             "DeliveryHandlingRule",
             event_bus=self.local_bus,
             rule_name="order-service-rule",
-            event_pattern={"detailType": ["Delivery.Updated"]},
+            event_pattern=aws_events.EventPattern(detail_type=["Delivery.Updated"]),
         )
         delivery_events_rule.add_target(
             targets.LambdaFunction(delivery_update_function)

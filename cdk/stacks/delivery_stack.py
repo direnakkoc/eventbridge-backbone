@@ -2,8 +2,9 @@ from aws_cdk import (
     Aws,
     CfnOutput,
     Duration,
-    Environment,
+    Stack,
     aws_events,
+    aws_iam,
     aws_lambda,
     aws_lambda_python_alpha,
     aws_logs,
@@ -15,10 +16,8 @@ from constructs import Construct
 
 from cdk.constants import ENVIRONMENT, LAMBDA_BUILD_DIR, SERVICE_NAME
 
-from .base_stack import BaseStack
 
-
-class DeliveryServiceStack(BaseStack):
+class DeliveryServiceStack(Stack):
     local_bus: aws_events.EventBus
 
     def __init__(
@@ -27,9 +26,21 @@ class DeliveryServiceStack(BaseStack):
         id: str,
         bus_account: str,
         identifier: str,
-        env: Environment,
+        **kwargs,
     ) -> None:
-        super().__init__(scope, id, bus_account, identifier, env)
+        super().__init__(
+            scope,
+            id,
+            **kwargs,
+        )
+        self.bus_account = bus_account
+        self.identifier = identifier
+        self.global_bus = aws_events.EventBus.from_event_bus_name(
+            self, "GlobalBus", "global-bus"
+        )
+        self.local_bus = aws_events.EventBus.from_event_bus_name(
+            self, "LocalBus", f"local-bus-{identifier}"
+        )
         self.create_order_delivery_function()
 
     def create_order_delivery_function(self) -> None:
@@ -53,7 +64,13 @@ class DeliveryServiceStack(BaseStack):
             log_retention=aws_logs.RetentionDays.ONE_WEEK,
             tracing=aws_lambda.Tracing.ACTIVE,
         )
-        order_delivery_function.add_to_role_policy(self.global_bus_put_events_statement)
+        order_delivery_function.add_to_role_policy(
+            aws_iam.PolicyStatement(
+                effect=aws_iam.Effect.ALLOW,
+                resources=[self.global_bus.event_bus_arn],
+                actions=["events:PutEvents"],
+            )
+        )
 
         # The delivery function reacts to orders being created
         order_delivery_rule = aws_events.Rule(
@@ -61,9 +78,9 @@ class DeliveryServiceStack(BaseStack):
             "OrderDeliveryRule",
             event_bus=self.local_bus,
             rule_name="order-delivery-rule",
-            event_pattern={
-                "detailType": ["Order.Created"],
-            },
+            event_pattern=aws_events.EventPattern(
+                detail_type=["Order.Created"],
+            ),
         )
         order_delivery_rule.add_target(targets.LambdaFunction(order_delivery_function))
 

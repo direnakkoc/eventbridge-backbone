@@ -25,10 +25,6 @@ delivery_account = os.environ.get("delivery-service-account")
 bus_stage = BusStage(
     app,
     "DirenBusStack",
-    identifier={
-        ORDER_SERVICE_IDENTIFIER: order_account,
-        DELIVERY_SERVICE_IDENTIFIER: delivery_account,
-    },
     env=Environment(
         account=os.environ.get("bus-account", account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
@@ -38,8 +34,6 @@ bus_stage = BusStage(
 order_stage = OrderStage(
     app,
     "DirenOrderServiceStack",
-    bus_account=bus_account,
-    identifier=ORDER_SERVICE_IDENTIFIER,
     env=Environment(
         account=os.environ.get("order-service-account", account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
@@ -49,8 +43,6 @@ order_stage = OrderStage(
 delivery_stage = DeliveryStage(
     app,
     "DirenDeliveryServiceStack",
-    bus_account=bus_account,
-    identifier=DELIVERY_SERVICE_IDENTIFIER,
     env=Environment(
         account=os.environ.get("delivery-service-account", account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),

@@ -1,9 +1,5 @@
-from typing import Dict, List
-
 from aws_cdk import (
-    Environment,
     Stack,
-    Stage,
     pipelines,
 )
 from aws_cdk import (
@@ -17,11 +13,17 @@ class PipelineStack(Stack):
         self,
         scope: Construct,
         id: str,
-        stages: List[Stage],
-        accounts: Dict,
-        env: Environment,
+        stages,
+        accounts,
+        **kwargs,
     ) -> None:
-        super().__init__(scope, id, stages, accounts, env)
+        super().__init__(
+            scope,
+            id,
+            **kwargs,
+        )
+        self.stages = stages
+        self.accounts = accounts
 
         code_star_connection = code_star_connections.CfnConnection(
             self,

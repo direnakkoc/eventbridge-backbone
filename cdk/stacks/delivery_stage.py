@@ -1,10 +1,7 @@
-import os
-
-from aws_cdk import App, Environment
+from aws_cdk import App, Stage
 from boto3 import client, session
 from constructs import Construct
 
-from .base_stage import BaseStage
 from .delivery_stack import DeliveryServiceStack
 
 account = client("sts").get_caller_identity()["Account"]
@@ -12,24 +9,18 @@ region = session.Session().region_name
 app = App()
 
 
-class DeliveryStage(BaseStage):
+class DeliveryStage(Stage):
     def __init__(
         self,
         scope: Construct,
         id: str,
-        bus_account: str,
-        identifier: str,
-        env: Environment,
+        **kwargs,
     ) -> None:
-        super().__init__(scope, id, bus_account, identifier, env)
+        super().__init__(scope, id, **kwargs)
 
         DeliveryServiceStack(
             app,
             "DirenDeliveryServiceStack",
-            bus_account=self.bus_account,
+            bus_account="local-bus-delivery-service",
             identifier="delivery-service",
-            env=Environment(
-                account=os.environ.get("delivery-service-account", account),
-                region=os.environ.get("AWS_DEFAULT_REGION", region),
-            ),
         )

@@ -27,9 +27,11 @@ class BaseStack(Stack):
     global_bus_put_events_statement: iam.PolicyStatement
 
     def __init__(
-        self, scope: Construct, id: str, bus_account: str, identifier: str
+        self, scope: Construct, id: str, bus_account: str, identifier: str, **kwargs
     ) -> None:
-        super().__init__(scope, id, bus_account, identifier)
+        super().__init__(scope, id, **kwargs)
+        self.bus_account = bus_account
+        self.identifier = identifier
 
         global_bus_arn = (
             f"arn:aws:events:{Aws.REGION}:{bus_account}:event-bus/global-bus"
@@ -48,9 +50,7 @@ class BaseStack(Stack):
             self, "LocalBusLogs", retention=logs.RetentionDays.ONE_WEEK
         )
 
-        local_bus = events.EventBus(
-            self, "LocalBus", event_bus_name=f"local-bus-{identifier}"
-        )
+        local_bus = events.EventBus(self, "LocalBus", f"local-bus-{identifier}")
 
         CfnOutput(self, "localBusName", value=local_bus.event_bus_name)
 

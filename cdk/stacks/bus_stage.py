@@ -1,7 +1,6 @@
 import os
-from typing import Dict
 
-from aws_cdk import App, Environment, Stage
+from aws_cdk import App, Stage
 from boto3 import client, session
 from constructs import Construct
 
@@ -22,20 +21,15 @@ class BusStage(Stage):
         self,
         scope: Construct,
         id: str,
-        identifier: Dict,
-        env: Environment,
+        **kwargs,
     ) -> None:
-        super().__init__(scope, id, identifier, env)
+        super().__init__(scope, id, **kwargs)
 
         BusStack(
-            app,
+            self,
             "DirenBusStack",
-            identifier={
+            application_account_by_identifier={
                 ORDER_SERVICE_IDENTIFIER: order_account,
                 DELIVERY_SERVICE_IDENTIFIER: delivery_account,
             },
-            env=Environment(
-                account=os.environ.get("bus-account", account),
-                region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
-            ),
         )

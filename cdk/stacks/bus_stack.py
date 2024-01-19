@@ -1,11 +1,6 @@
-from typing import Dict
-
 from aws_cdk import (
-    Aws,
     CfnOutput,
-    Environment,
     Stack,
-    aws_events_targets,
 )
 from aws_cdk import (
     aws_events as events,
@@ -27,9 +22,10 @@ from constructs import Construct
 
 class BusStack(Stack):
     def __init__(
-        self, scope: Construct, id: str, identifier: Dict, env: Environment
+        self, scope: Construct, id: str, application_account_by_identifier, **kwargs
     ) -> None:
-        super().__init__(scope, id, identifier, env)
+        super().__init__(scope, id, **kwargs)
+        self.principal_values = list(application_account_by_identifier.values())
 
         bus_log_group = logs.LogGroup(
             self, "GlobalBusLogs", retention=logs.RetentionDays.ONE_WEEK
@@ -45,7 +41,7 @@ class BusStack(Stack):
             event_bus_name=bus.event_bus_name,
             statement_id="global-bus-policy-stmt",
             statement={
-                "Principal": {"AWS": list(("identifier", {}).values())},
+                "Principal": {"AWS": self.principal_values},
                 "Action": "events:PutEvents",
                 "Resource": bus.event_bus_arn,
                 "Effect": "Allow",
@@ -56,27 +52,27 @@ class BusStack(Stack):
             self,
             "BusLoggingRule",
             event_bus=bus,
-            event_pattern={"source": [{"prefix": ""}]},  # Match all
+            event_pattern=events.EventPattern(source=[""]),  # Match all
             targets=[CloudWatchLogGroup(bus_log_group)],
         )
 
-        for id, application_account in ("identifier", {}).items():
-            normalised_identifier = id.capitalize()
-            local_bus_arn = (
-                f"arn:aws:events:{Aws.REGION}:{application_account}"
-                ":event-bus/local-bus-{identifier}"
-            )
-            rule = events.Rule(
+        for (
+            identifier,
+            application_account,
+        ) in application_account_by_identifier.items():
+            normalised_identifier = identifier.capitalize()
+            events.Rule(
                 self,
                 f"globalTo{normalised_identifier}",
                 event_bus=bus,
                 rule_name=f"globalTo{normalised_identifier}",
-                event_pattern={"source": [{"anything-but": id}]},
+                # event_pattern=events.EventPattern(source= [ self.principal_values]),
             )
-            rule.add_target(
-                aws_events_targets.EventBus(
-                    self, f"localBus{normalised_identifier}", local_bus_arn
-                )
-            )
+            # rule.add_target(
+            #     aws_events_targets.EventBus(
+            #         f"localBus{normalised_identifier}",
+            #         local_bus_arn
+            #     )
+            # )
 
         self.bus = bus

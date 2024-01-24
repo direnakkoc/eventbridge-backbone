@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Sequence
+from typing import Dict
 
 from aws_cdk import CfnOutput, Stack, aws_events, aws_logs
 from aws_cdk.aws_events_targets import CloudWatchLogGroup
@@ -23,7 +23,7 @@ class BusStack(Stack):
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
-        self.principal_values: Sequence[str] = list(
+        self.principal_values = list(
             application_account_by_identifier.values()
         )
 

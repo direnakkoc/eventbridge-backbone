@@ -1,13 +1,7 @@
-from aws_cdk import (
-    CfnOutput,
-    Stack,
-)
-from aws_cdk import (
-    aws_events as events,
-)
-from aws_cdk import (
-    aws_logs as logs,
-)
+import json
+from typing import Dict, Sequence
+
+from aws_cdk import CfnOutput, Stack, aws_events, aws_logs
 from aws_cdk.aws_events_targets import CloudWatchLogGroup
 from constructs import Construct
 
@@ -22,38 +16,48 @@ from constructs import Construct
 
 class BusStack(Stack):
     def __init__(
-        self, scope: Construct, id: str, application_account_by_identifier, **kwargs
+        self,
+        scope: Construct,
+        id: str,
+        application_account_by_identifier: Dict[str, str],
+        **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
-        self.principal_values = list(application_account_by_identifier.values())
-
-        bus_log_group = logs.LogGroup(
-            self, "GlobalBusLogs", retention=logs.RetentionDays.ONE_WEEK
+        self.principal_values: Sequence[str] = list(
+            application_account_by_identifier.values()
         )
 
-        bus = events.EventBus(self, "Bus", event_bus_name="global-bus")
+        self.bus_log_group = aws_logs.LogGroup(
+            self, "GlobalBusLogs", retention=aws_logs.RetentionDays.ONE_WEEK
+        )
 
-        CfnOutput(self, "globalBusName", value=bus.event_bus_name)
+        self.bus = aws_events.EventBus.from_event_bus_name(
+            self, "Bus", event_bus_name="global-bus"
+        )
 
-        events.CfnEventBusPolicy(
+        CfnOutput(self, "globalBusName", value=self.bus.event_bus_name)
+
+        aws_events.CfnEventBusPolicy(
             self,
             "BusPolicy",
-            event_bus_name=bus.event_bus_name,
+            event_bus_name=self.bus.event_bus_name,
             statement_id="global-bus-policy-stmt",
-            statement={
-                "Principal": {"AWS": self.principal_values},
-                "Action": "events:PutEvents",
-                "Resource": bus.event_bus_arn,
-                "Effect": "Allow",
-            },
+            statement=json.dumps(
+                {
+                    "Principal": {"AWS": self.principal_values},
+                    "Action": "events:PutEvents",
+                    "Resource": self.bus.event_bus_arn,
+                    "Effect": "Allow",
+                }
+            ),
         )
 
-        events.Rule(
+        aws_events.Rule(
             self,
             "BusLoggingRule",
-            event_bus=bus,
-            event_pattern=events.EventPattern(source=[""]),  # Match all
-            targets=[CloudWatchLogGroup(bus_log_group)],
+            event_bus=self.bus,
+            event_pattern=aws_events.EventPattern(source=[""]),  # Match all
+            targets=[CloudWatchLogGroup(self.bus_log_group)],
         )
 
         for (
@@ -61,12 +65,12 @@ class BusStack(Stack):
             application_account,
         ) in application_account_by_identifier.items():
             normalised_identifier = identifier.capitalize()
-            events.Rule(
+            aws_events.Rule(
                 self,
                 f"globalTo{normalised_identifier}",
-                event_bus=bus,
+                event_bus=self.bus,
                 rule_name=f"globalTo{normalised_identifier}",
-                # event_pattern=events.EventPattern(source= [ self.principal_values]),
+                event_pattern=aws_events.EventPattern(source=self.principal_values),
             )
             # rule.add_target(
             #     aws_events_targets.EventBus(
@@ -75,4 +79,4 @@ class BusStack(Stack):
             #     )
             # )
 
-        self.bus = bus
+        self.bus = self.bus

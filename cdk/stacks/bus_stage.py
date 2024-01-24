@@ -1,6 +1,6 @@
 import os
 
-from aws_cdk import App, Stage
+from aws_cdk import App, Aws, Stage
 from boto3 import client, session
 from constructs import Construct
 
@@ -12,8 +12,8 @@ app = App()
 
 ORDER_SERVICE_IDENTIFIER = "order-service"
 DELIVERY_SERVICE_IDENTIFIER = "delivery-service"
-order_account = os.environ.get("order-service-account")
-delivery_account = os.environ.get("delivery-service-account")
+ORDER_ACCOUNT = os.environ.get(Aws.ACCOUNT_ID, "")
+DELIVERY_ACCOUNT = os.environ.get(Aws.ACCOUNT_ID, "")
 
 
 class BusStage(Stage):
@@ -29,7 +29,7 @@ class BusStage(Stage):
             self,
             "DirenBusStack",
             application_account_by_identifier={
-                ORDER_SERVICE_IDENTIFIER: order_account,
-                DELIVERY_SERVICE_IDENTIFIER: delivery_account,
+                ORDER_SERVICE_IDENTIFIER: ORDER_ACCOUNT,
+                DELIVERY_SERVICE_IDENTIFIER: DELIVERY_ACCOUNT,
             },
         )

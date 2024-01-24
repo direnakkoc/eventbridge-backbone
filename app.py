@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 
-from aws_cdk import App, Environment
+from aws_cdk import App, Aws, Environment
 from boto3 import client, session
 
 from cdk.stacks.bus_stage import BusStage
@@ -17,16 +17,16 @@ region = session.Session().region_name
 
 app = App()
 
-cicd_account = os.environ.get("cicd-account")
-bus_account = os.environ.get("bus-account")
-order_account = os.environ.get("order-service-account")
-delivery_account = os.environ.get("delivery-service-account")
+CICD_ACCOUNT = os.environ.get(Aws.ACCOUNT_ID, "")
+BUS_ACCOUNT = os.environ.get(Aws.ACCOUNT_ID, "")
+ORDER_ACCOUNT = os.environ.get(Aws.ACCOUNT_ID, "")
+DELIVERY_ACCOUNT = os.environ.get(Aws.ACCOUNT_ID, "")
 
 bus_stage = BusStage(
     app,
     "DirenBusStack",
     env=Environment(
-        account=os.environ.get("bus-account", account),
+        account=os.environ.get(BUS_ACCOUNT, account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
 )
@@ -35,7 +35,7 @@ order_stage = OrderStage(
     app,
     "DirenOrderServiceStack",
     env=Environment(
-        account=os.environ.get("order-service-account", account),
+        account=os.environ.get(DELIVERY_ACCOUNT, account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
 )
@@ -44,7 +44,7 @@ delivery_stage = DeliveryStage(
     app,
     "DirenDeliveryServiceStack",
     env=Environment(
-        account=os.environ.get("delivery-service-account", account),
+        account=os.environ.get(DELIVERY_ACCOUNT, account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
 )
@@ -54,13 +54,13 @@ pipeline_stack = PipelineStack(
     "DirenPipelineStack",
     stages=[bus_stage, order_stage, delivery_stage],
     accounts={
-        "cicd-account": cicd_account,
-        "bus-account": bus_account,
-        "order-service-account": order_account,
-        "delivery-service-account": delivery_account,
+        "cicd-account": CICD_ACCOUNT,
+        "bus-account": BUS_ACCOUNT,
+        "order-service-account": ORDER_ACCOUNT,
+        "delivery-service-account": DELIVERY_ACCOUNT,
     },
     env=Environment(
-        account=os.environ.get("cicd-account", account),
+        account=os.environ.get(CICD_ACCOUNT, account),
         region=os.environ.get("AWS_DEFAULT_ACCOUNT", region),
     ),
 )

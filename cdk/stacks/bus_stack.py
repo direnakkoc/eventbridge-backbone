@@ -23,9 +23,8 @@ class BusStack(Stack):
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
-        self.principal_values = list(
-            application_account_by_identifier.values()
-        )
+
+        self.principal_values = list(application_account_by_identifier.values())
 
         self.bus_log_group = aws_logs.LogGroup(
             self, "GlobalBusLogs", retention=aws_logs.RetentionDays.ONE_WEEK

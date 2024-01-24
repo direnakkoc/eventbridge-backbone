@@ -1,4 +1,6 @@
-from aws_cdk import App, Stage
+import os
+
+from aws_cdk import App, Aws, Stage
 from boto3 import client, session
 from constructs import Construct
 
@@ -21,6 +23,6 @@ class DeliveryStage(Stage):
         DeliveryServiceStack(
             app,
             "DirenDeliveryServiceStack",
-            bus_account="local-bus-delivery-service",
+            bus_account=os.environ.get(Aws.ACCOUNT_ID, ""),
             identifier="delivery-service",
         )

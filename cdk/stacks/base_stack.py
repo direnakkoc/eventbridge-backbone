@@ -22,10 +22,6 @@ from constructs import Construct
 
 
 class BaseStack(Stack):
-    local_bus: events.IEventBus
-    global_bus: events.IEventBus
-    global_bus_put_events_statement: iam.PolicyStatement
-
     def __init__(
         self, scope: Construct, id: str, bus_account: str, identifier: str, **kwargs
     ) -> None:
@@ -33,36 +29,38 @@ class BaseStack(Stack):
         self.bus_account = bus_account
         self.identifier = identifier
 
-        global_bus_arn = (
+        self.global_bus_arn = (
             f"arn:aws:events:{Aws.REGION}:{bus_account}:event-bus/global-bus"
         )
         self.global_bus = events.EventBus.from_event_bus_arn(
-            self, "GlobalBus", global_bus_arn
+            self, "GlobalBus", self.global_bus_arn
         )
         # This is a reusable policy statement that allows Lambda
         # functions to publish events to the global bus
         self.global_bus_put_events_statement = iam.PolicyStatement(
             actions=["events:PutEvents"],
-            resources=[global_bus_arn],
+            resources=[self.global_bus_arn],
         )
 
-        bus_log_group = logs.LogGroup(
+        self.bus_log_group = logs.LogGroup(
             self, "LocalBusLogs", retention=logs.RetentionDays.ONE_WEEK
         )
 
-        local_bus = events.EventBus(self, "LocalBus", f"local-bus-{identifier}")
+        self.local_bus = events.EventBus.from_event_bus_name(
+            self, "LocalBus", f"local-bus-{identifier}"
+        )
 
-        CfnOutput(self, "localBusName", value=local_bus.event_bus_name)
+        CfnOutput(self, "localBusName", value=self.local_bus.event_bus_name)
 
         events.CfnEventBusPolicy(
             self,
             "LocalBusPolicy",
-            event_bus_name=local_bus.event_bus_name,
+            event_bus_name=self.local_bus.event_bus_name,
             statement_id=f"local-bus-policy-stmt-{identifier}",
             statement={
                 "Principal": {"AWS": self.global_bus.env.account},
                 "Action": "events:PutEvents",
-                "Resource": local_bus.event_bus_arn,
+                "Resource": self.local_bus.event_bus_arn,
                 "Effect": "Allow",
             },
         )
@@ -70,10 +68,10 @@ class BaseStack(Stack):
         local_logging_rule = events.Rule(
             self,
             "LocalLoggingRule",
-            event_bus=local_bus,
+            event_bus=self.local_bus,
             rule_name="local-logging",
             event_pattern={"source": [{"prefix": ""}]},  # Match all
         )
-        local_logging_rule.add_target(CloudWatchLogGroup(bus_log_group))
+        local_logging_rule.add_target(CloudWatchLogGroup(self.bus_log_group))
 
-        self.local_bus = local_bus
+        self.local_bus = self.local_bus

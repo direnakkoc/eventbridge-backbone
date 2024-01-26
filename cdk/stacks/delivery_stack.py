@@ -18,8 +18,6 @@ from cdk.constants import ENVIRONMENT, LAMBDA_BUILD_DIR, SERVICE_NAME
 
 
 class DeliveryServiceStack(Stack):
-    local_bus: aws_events.EventBus
-
     def __init__(
         self,
         scope: Construct,

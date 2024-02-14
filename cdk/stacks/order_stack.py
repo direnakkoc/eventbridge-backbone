@@ -4,13 +4,11 @@ from aws_cdk import (
     Stack,
     aws_apigateway,
     aws_events,
+    aws_events_targets,
     aws_iam,
     aws_lambda,
     aws_lambda_python_alpha,
     aws_logs,
-)
-from aws_cdk import (
-    aws_events_targets as targets,
 )
 from constructs import Construct
 
@@ -32,8 +30,8 @@ class OrderServiceStack(Stack):
         self.global_bus = aws_events.EventBus.from_event_bus_name(
             self, "GlobalBus", "global-bus"
         )
-        self.local_bus = aws_events.EventBus.from_event_bus_name(
-            self, "LocalBus", f"local-bus-{identifier}"
+        self.local_bus = aws_events.EventBus(
+            self, "LocalBus", event_bus_name=f"local-bus-{identifier}"
         )
 
         self.create_order_create_function()
@@ -114,7 +112,7 @@ class OrderServiceStack(Stack):
             event_pattern=aws_events.EventPattern(detail_type=["Delivery.Updated"]),
         )
         delivery_events_rule.add_target(
-            targets.LambdaFunction(delivery_update_function)
+            aws_events_targets.LambdaFunction(delivery_update_function)
         )
 
         CfnOutput(self, "deliveryEventsRule", value=delivery_events_rule.rule_name)

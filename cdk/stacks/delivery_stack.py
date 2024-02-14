@@ -4,13 +4,11 @@ from aws_cdk import (
     Duration,
     Stack,
     aws_events,
+    aws_events_targets,
     aws_iam,
     aws_lambda,
     aws_lambda_python_alpha,
     aws_logs,
-)
-from aws_cdk import (
-    aws_events_targets as targets,
 )
 from constructs import Construct
 
@@ -36,8 +34,8 @@ class DeliveryServiceStack(Stack):
         self.global_bus = aws_events.EventBus.from_event_bus_name(
             self, "GlobalBus", "global-bus"
         )
-        self.local_bus = aws_events.EventBus.from_event_bus_name(
-            self, "LocalBus", f"local-bus-{identifier}"
+        self.local_bus = aws_events.EventBus(
+            self, "LocalBus", event_bus_name=f"local-bus-{identifier}"
         )
         self.create_order_delivery_function()
 
@@ -45,7 +43,7 @@ class DeliveryServiceStack(Stack):
         order_delivery_function = aws_lambda_python_alpha.PythonFunction(
             self,
             "OrderDeliveryFunction",
-            function_name=f"{SERVICE_NAME}-handle-order-create-{ENVIRONMENT}",
+            function_name=f"{SERVICE_NAME}-handle-delivery-{ENVIRONMENT}",
             index="delivery_handler/handler.py",
             entry=LAMBDA_BUILD_DIR,
             environment={
@@ -80,7 +78,9 @@ class DeliveryServiceStack(Stack):
                 detail_type=["Order.Created"],
             ),
         )
-        order_delivery_rule.add_target(targets.LambdaFunction(order_delivery_function))
+        order_delivery_rule.add_target(
+            aws_events_targets.LambdaFunction(order_delivery_function)
+        )
 
         CfnOutput(self, "orderDeliveryRule", value=order_delivery_rule.rule_name)
         CfnOutput(self, "orderDeliveryRuleTarget", value="Target0")

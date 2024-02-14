@@ -46,9 +46,7 @@ class BaseStack(Stack):
             self, "LocalBusLogs", retention=logs.RetentionDays.ONE_WEEK
         )
 
-        self.local_bus = events.EventBus.from_event_bus_name(
-            self, "LocalBus", f"local-bus-{identifier}"
-        )
+        self.local_bus = events.EventBus(self, "LocalBus", f"local-bus-{identifier}")
 
         CfnOutput(self, "localBusName", value=self.local_bus.event_bus_name)
 

@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from uuid import uuid4
 
@@ -7,7 +8,7 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from event_util import EventSender
 
-SERVICE_IDENTIFIER = "order-service"
+SERVICE_IDENTIFIER = os.environ["SERVICE_IDENTIFIER"]
 if not SERVICE_IDENTIFIER:
     raise ValueError("SERVICE_IDENTIFIER env var is required")
 

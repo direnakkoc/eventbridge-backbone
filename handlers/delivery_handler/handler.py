@@ -1,3 +1,4 @@
+import os
 import uuid
 
 from aws_lambda_powertools import Logger
@@ -5,7 +6,7 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from handlers.event_util import EventSender
 
-SERVICE_IDENTIFIER = "delivery-service"
+SERVICE_IDENTIFIER = os.environ["SERVICE_IDENTIFIER"]
 if not SERVICE_IDENTIFIER:
     raise ValueError("SERVICE_IDENTIFIER env var is required")
 

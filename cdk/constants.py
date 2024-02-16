@@ -10,3 +10,4 @@ LAMBDA_BUILD_DIR = ".BUILD/HANDLERS/"
 ORDER_SERVICE_IDENTIFIER = os.environ.get("order-service", Aws.ACCOUNT_ID)
 DELIVERY_SERVICE_IDENTIFIER = os.environ.get("delivery-service", Aws.ACCOUNT_ID)
 BUS_ACCOUNT = os.environ.get("BUS_ARN", Aws.ACCOUNT_ID)
+CICD_ACCOUNT = os.environ.get("CICD_ACCOUNT", Aws.ACCOUNT_ID)

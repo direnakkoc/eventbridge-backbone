@@ -35,7 +35,7 @@ class DeliveryServiceStack(Stack):
             self, "GlobalBus", "global-bus"
         )
         self.local_bus = aws_events.EventBus(
-            self, "LocalBus", event_bus_name=f"local-bus-{identifier}"
+            self, "LocalBus", event_bus_name=f"local-bus-{identifier}-delivery"
         )
         self.create_order_delivery_function()
 

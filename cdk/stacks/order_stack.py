@@ -31,7 +31,7 @@ class OrderServiceStack(Stack):
             self, "GlobalBus", "global-bus"
         )
         self.local_bus = aws_events.EventBus(
-            self, "LocalBus", event_bus_name=f"local-bus-{identifier}"
+            self, "LocalBus", event_bus_name=f"local-bus-{identifier}-order"
         )
 
         self.create_order_create_function()

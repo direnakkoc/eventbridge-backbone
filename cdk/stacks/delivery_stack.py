@@ -12,7 +12,10 @@ from aws_cdk import (
 )
 from constructs import Construct
 
-from cdk.constants import ENVIRONMENT, LAMBDA_BUILD_DIR, SERVICE_NAME
+from cdk.constants import (
+    ENVIRONMENT,
+    SERVICE_NAME,
+)
 
 
 class DeliveryServiceStack(Stack):
@@ -44,11 +47,14 @@ class DeliveryServiceStack(Stack):
             self,
             "OrderDeliveryFunction",
             function_name=f"{SERVICE_NAME}-handle-delivery-{ENVIRONMENT}",
+            handler="handle_order_created",
             index="delivery_handler/handler.py",
-            entry=LAMBDA_BUILD_DIR,
+            entry="handlers",
             environment={
+                "POWERTOOLS_NAMESPACE_NAME": f"{SERVICE_NAME}-messaging",
                 "ENVIRONMENT": ENVIRONMENT,
                 "SERVICE_NAME": SERVICE_NAME,
+                "SERVICE": f"{SERVICE_NAME}-messaging",
                 "ACCOUNT": Aws.ACCOUNT_ID,
                 "REGION": Aws.REGION,
                 "BUS_ARN": self.global_bus.event_bus_arn,

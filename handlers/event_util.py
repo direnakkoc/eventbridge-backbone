@@ -1,26 +1,23 @@
 import json
-from multiprocessing import process
+import os
 
 import boto3
 from aws_lambda_powertools import Logger
 
 logger = Logger()
-logger._get_logger("event-sender")
+logger.info("event-sender")
 events_client = boto3.client("events")
 
-
-BUS_ARN = process.env  # check this???
+BUS_ARN = os.environ["BUS_ARN"]
 
 
 class EventSender:
-    service_name: str
-
     def __init__(self, service_name):
         self.service_name = service_name
 
-    def send(self, detail_type, data):
-        params = events_client.put_events(
-            Entries=[
+    def send(self, detail_type: str, data: str):
+        params = {
+            "Entries": [
                 {
                     "EventBusName": BUS_ARN,
                     "Source": self.service_name,
@@ -28,7 +25,12 @@ class EventSender:
                     "Detail": json.dumps({"data": data, "meta": {}}),
                 }
             ]
-        )
+        }
+
         logger.info(params, "Sending events")
-        # return client.put_events(params)
-        return params
+        try:
+            response = events_client.put_events(Entries=params["Entries"])
+            logger.info(response, "PutEventsCommand response")
+            return response
+        except Exception as e:
+            logger.error(e, "Error sending events to EventBridge")

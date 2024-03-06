@@ -3,7 +3,7 @@ import uuid
 
 from aws_lambda_powertools import Logger, Metrics, Tracer
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from handlers.event_util import EventSender
+from event_util import EventSender
 
 SERVICE_IDENTIFIER = os.environ["SERVICE_IDENTIFIER"]
 if not SERVICE_IDENTIFIER:

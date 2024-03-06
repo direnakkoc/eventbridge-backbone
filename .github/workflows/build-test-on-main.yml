@@ -1,0 +1,26 @@
+name: Build & Test 🧪
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize]
+concurrency: ci-${{ github.ref}}-${{ github.event_name }}
+permissions:
+  contents: write
+  id-token: write
+  actions: read
+  security-events: write
+jobs:
+  pyspector:
+    uses: ./.github/workflows/pyspector.yml
+    with:
+      pr_id: ${{ github.event.number }}
+      build_number: ${{ github.run_number }}
+      build_name: ${{ github.event.repository.name }}
+    secrets: inherit
+  build-and-test:
+    uses: ./.github/workflows/build-test-common.yml
+    with:
+      ref: ${{ github.ref }}
+      e2e_stack_env: ci
+    secrets: inherit

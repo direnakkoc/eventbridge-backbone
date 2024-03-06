@@ -1,0 +1,144 @@
+name: Build & Test Common 🧪
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      e2e_stack_env:
+        required: true
+        type: string
+    secrets:
+      ACTIONS_GITHUB_COM_TOKEN:
+        required: true
+env:
+  AWS_DEFAULT_REGION: 'eu-west-1'
+permissions:
+  contents: write
+  id-token: write
+  actions: read
+  security-events: write
+jobs:
+  build:
+    runs-on: [self-hosted, Linux]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref }}
+      - name: install poetry
+        run: |
+          pip install --upgrade pip poetry==1.7.0
+      - uses: actions/setup-python@v4
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: 'poetry'
+          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+      - name: install
+        run: |
+          poetry install
+  lint:
+    runs-on: [self-hosted, Linux]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref }}
+      - name: install poetry
+        run: |
+          pip install --upgrade pip poetry==1.7.0
+      - uses: actions/setup-python@v4
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: 'poetry'
+          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: .github/workflows/.node-version
+          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+      - uses: extractions/setup-just@v1
+      - name: pre-commit checks
+        run: |
+          pip install --upgrade pip pre-commit
+          pre-commit install
+      - name: lint
+        run: |
+          just lint-strict
+  code-analysis:
+    runs-on: [ self-hosted, Linux]
+    timeout-minutes: 20
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref }}
+      - name: install poetry
+        run: |
+          pip install --upgrade pip poetry==1.7.1
+      - uses: actions/setup-python@v4
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: 'poetry'
+          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+      - name: install
+        run: |
+          poetry install
+      - name: Initialize Python CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: 'python'
+          setup-python-dependencies: false
+      - name: perform code analysis
+        uses: github/codeql-action/analyze@v2
+  test-unit:
+    runs-on: [self-hosted, Linux]
+    timeout-minutes: 20
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref }}
+      - name: install poetry
+        run: |
+          pip install --upgrade pip poetry==1.7.0
+      - uses: actions/setup-python@v4
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: 'poetry'
+          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: .github/workflows/.node-version
+          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+      - uses: extractions/setup-just@v1
+      - name: test unit
+        run: |
+          just test-unit 
+  # test-infra:
+  #   runs-on: [self-hosted, Linux, iris-oidc]
+  #   timeout-minutes: 20
+  #   needs: build
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{ inputs.ref }}
+  #     - name: install poetry
+  #       run: |
+  #         pip install --upgrade pip poetry==1.7.0
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version-file: .github/workflows/.python-version
+  #         cache: 'poetry'
+  #         token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version-file: .github/workflows/.node-version
+  #         token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+  #     - uses: extractions/setup-just@v1
+  #     - name: test cdk infra
+  #       env:
+  #         ENVIRONMENT: test-ci
+  #       run: |
+  #         npm install -g aws-cdk@^2
+  #         just test-infra
+  

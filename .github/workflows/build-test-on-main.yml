@@ -1,0 +1,19 @@
+name: Build & Test Main 🧪
+on:
+  push:
+    branches: [main]
+concurrency: ci-${{ github.ref}}-${{ github.event_name }}
+permissions:
+  contents: write
+  id-token: write
+  actions: write
+  security-events: write
+jobs:
+  build-and-test:
+    if: ${{ !contains( github.event.head_commit.message, 'skip-ci' ) }}
+    uses: ./.github/workflows/build-test-common.yml
+    with:
+      ref: ${{ github.ref }}
+      e2e_stack_env: ci
+    secrets:
+      ACTIONS_GITHUB_COM_TOKEN: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }} # Pass the required secret here

@@ -34,7 +34,7 @@ def handle_order_create(event: dict, context: LambdaContext) -> dict:
     order_id = str(uuid4())
     order = {"order_id": order_id, "created_at": int(time.time() * 1000)}
 
-    event_sender.send("Order.Created", order)
+    event_sender.send("Order.Created", order)  # type: ignore
 
     return {"statusCode": 201, "body": json.dumps(order)}
 
@@ -52,6 +52,6 @@ def handle_delivery_update(event: dict, context: LambdaContext) -> dict:
         "updated_at": int(time.time() * 1000),
     }
 
-    event_sender.send("Order.Updated", updated_order)
+    event_sender.send("Order.Updated", updated_order)  # type: ignore
 
     return updated_order

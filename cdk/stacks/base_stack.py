@@ -2,15 +2,9 @@ from aws_cdk import (
     Aws,
     CfnOutput,
     Stack,
-)
-from aws_cdk import (
-    aws_events as events,
-)
-from aws_cdk import (
-    aws_iam as iam,
-)
-from aws_cdk import (
-    aws_logs as logs,
+    aws_events,
+    aws_iam,
+    aws_logs,
 )
 from aws_cdk.aws_events_targets import CloudWatchLogGroup
 from constructs import Construct
@@ -32,25 +26,27 @@ class BaseStack(Stack):
         self.global_bus_arn = (
             f"arn:aws:events:{Aws.REGION}:{bus_account}:event-bus/global-bus"
         )
-        self.global_bus = events.EventBus.from_event_bus_arn(
+        self.global_bus = aws_events.EventBus.from_event_bus_arn(
             self, "GlobalBus", self.global_bus_arn
         )
         # This is a reusable policy statement that allows Lambda
         # functions to publish events to the global bus
-        self.global_bus_put_events_statement = iam.PolicyStatement(
+        self.global_bus_put_events_statement = aws_iam.PolicyStatement(
             actions=["events:PutEvents"],
             resources=[self.global_bus_arn],
         )
 
-        self.bus_log_group = logs.LogGroup(
-            self, "LocalBusLogs", retention=logs.RetentionDays.ONE_WEEK
+        self.bus_log_group = aws_logs.LogGroup(
+            self, "LocalBusLogs", retention=aws_logs.RetentionDays.ONE_WEEK
         )
 
-        self.local_bus = events.EventBus(self, "LocalBus", f"local-bus-{identifier}")
+        self.local_bus = aws_events.EventBus(
+            self, "LocalBus", event_bus_name=f"local-bus-{identifier}"
+        )
 
         CfnOutput(self, "localBusName", value=self.local_bus.event_bus_name)
 
-        events.CfnEventBusPolicy(
+        aws_events.CfnEventBusPolicy(
             self,
             "LocalBusPolicy",
             event_bus_name=self.local_bus.event_bus_name,
@@ -63,7 +59,7 @@ class BaseStack(Stack):
             },
         )
 
-        local_logging_rule = events.Rule(
+        local_logging_rule = aws_events.Rule(
             self,
             "LocalLoggingRule",
             event_bus=self.local_bus,

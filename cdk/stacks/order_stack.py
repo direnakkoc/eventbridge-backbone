@@ -40,7 +40,7 @@ class OrderServiceStack(Stack):
         self.create_order_create_function()
         self.create_delivery_update_function()
 
-    def create_order_create_function(self) -> aws_lambda_python_alpha.PythonFunction:
+    def create_order_create_function(self) -> None:
         create_order_function = aws_lambda_python_alpha.PythonFunction(
             self,
             "CreateOrderFunction",
@@ -81,7 +81,7 @@ class OrderServiceStack(Stack):
             value=f"https://{api.rest_api_id}.execute-api.{self.region}.{self.url_suffix}/{api.deployment_stage.stage_name}",
         )
 
-    def create_delivery_update_function(self) -> aws_lambda_python_alpha.PythonFunction:
+    def create_delivery_update_function(self) -> None:
         delivery_update_function = aws_lambda_python_alpha.PythonFunction(
             self,
             "DeliveryUpdateFunction",

@@ -29,7 +29,7 @@ event_sender = EventSender(SERVICE_IDENTIFIER)
 
 # Order Delivery processing - handle EventBridge events for Order.Created
 # and emit a Delivery.UpdatedEvent
-def handle_order_created(event: dict, context: LambdaContext) -> dict:
+def handle_order_created(event: dict, context: LambdaContext):
     logger.info(event)
 
     order = event["detail"]["data"]
@@ -44,4 +44,4 @@ def handle_order_created(event: dict, context: LambdaContext) -> dict:
         "delivered_at": int(time.time() * 1000),
         "delivery_id": str(uuid.uuid4()),
     }
-    event_sender.send("Delivery.Updated", delivery_update)
+    event_sender.send("Delivery.Updated", delivery_update)  # type: ignore

@@ -84,12 +84,12 @@ jobs:
         run: |
           poetry install
       - name: Initialize Python CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: 'python'
           setup-python-dependencies: false
       - name: perform code analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
   test-unit:
     runs-on: [self-hosted, Linux]
     timeout-minutes: 20

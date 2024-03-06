@@ -254,19 +254,19 @@ ujson = ["ujson (>=5.7.0)"]
 
 [[package]]
 name = "cdk-nag"
-version = "2.27.229"
+version = "2.28.55"
 description = "Check CDK v2 applications for best practices using a combination on available rule packs."
 optional = false
 python-versions = "~=3.8"
 files = [
-    {file = "cdk-nag-2.27.229.tar.gz", hash = "sha256:fe4b96633d848d4862b714a7dbf679bc033fa0fd8c2543b7718e4222b1bb5002"},
-    {file = "cdk_nag-2.27.229-py3-none-any.whl", hash = "sha256:bed720f52d23225f08a08a0da29fa5a40c58ef35db9987cc67c075467aa13685"},
+    {file = "cdk-nag-2.28.55.tar.gz", hash = "sha256:229dc5188d4e757e28ca7705aa2de523a46af09b8a363839ec8f8b28039bca69"},
+    {file = "cdk_nag-2.28.55-py3-none-any.whl", hash = "sha256:24b8ffc2b2ff8ca37fdc369114c3f74c1f2ecbb10fe22b2b8260a8bdaaa47070"},
 ]
 
 [package.dependencies]
-aws-cdk-lib = ">=2.78.0,<3.0.0"
+aws-cdk-lib = ">=2.116.0,<3.0.0"
 constructs = ">=10.0.5,<11.0.0"
-jsii = ">=1.93.0,<2.0.0"
+jsii = ">=1.95.0,<2.0.0"
 publication = ">=0.0.3"
 typeguard = ">=2.13.3,<2.14.0"
 
@@ -514,13 +514,13 @@ files = [
 
 [[package]]
 name = "jsii"
-version = "1.93.0"
+version = "1.95.0"
 description = "Python client for jsii runtime"
 optional = false
 python-versions = "~=3.8"
 files = [
-    {file = "jsii-1.93.0-py3-none-any.whl", hash = "sha256:d3cba8c18f2bb4eb94aa41a202b4eb14a561a3a347ed086294a6c9d5d17c90d6"},
-    {file = "jsii-1.93.0.tar.gz", hash = "sha256:15349b329b79699c88a6041c8987a4470e6cfa544e5c1e4a126bc5be9f48a623"},
+    {file = "jsii-1.95.0-py3-none-any.whl", hash = "sha256:456fe823847e1ebbb49ab4737b181cdb8eeb623058de4669283fba7bb261e8f4"},
+    {file = "jsii-1.95.0.tar.gz", hash = "sha256:f2461a0c1fdd6bb400caac5825596b0068a8c3adb9184549366adcf272815172"},
 ]
 
 [package.dependencies]
@@ -855,6 +855,7 @@ files = [
     {file = "PyYAML-6.0.1-cp311-cp311-win_amd64.whl", hash = "sha256:bf07ee2fef7014951eeb99f56f39c9bb4af143d8aa3c21b1677805985307da34"},
     {file = "PyYAML-6.0.1-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:855fb52b0dc35af121542a76b9a84f8d1cd886ea97c84703eaa6d88e37a2ad28"},
     {file = "PyYAML-6.0.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:40df9b996c2b73138957fe23a16a4f0ba614f4c0efce1e9406a184b6d07fa3a9"},
+    {file = "PyYAML-6.0.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a08c6f0fe150303c1c6b71ebcd7213c2858041a7e01975da3a99aed1e7a378ef"},
     {file = "PyYAML-6.0.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6c22bec3fbe2524cde73d7ada88f6566758a8f7227bfbf93a408a9d86bcc12a0"},
     {file = "PyYAML-6.0.1-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:8d4e9c88387b0f5c7d5f281e55304de64cf7f9c0021a3525bd3b1c542da3b0e4"},
     {file = "PyYAML-6.0.1-cp312-cp312-win32.whl", hash = "sha256:d483d2cdf104e7c9fa60c544d92981f12ad66a457afae824d146093b8c294c54"},
@@ -1187,4 +1188,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.0"
-content-hash = "96d92cfa0e2f2d0dc476e1e2ddb840ce9ec6cb147a897a565102d841a3164310"
+content-hash = "fc34637c03d3c3d363dc89e1ff7793be7d264312c4daad45e9fca3e680190def"

@@ -56,7 +56,7 @@ jobs:
         with:
           node-version-file: .github/workflows/.node-version
           token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
-      - uses: extractions/setup-just@v1
+      - uses: extractions/setup-just@v2
       - name: pre-commit checks
         run: |
           pip install --upgrade pip pre-commit
@@ -110,7 +110,7 @@ jobs:
         with:
           node-version-file: .github/workflows/.node-version
           token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
-      - uses: extractions/setup-just@v1
+      - uses: extractions/setup-just@v2
       - name: test unit
         run: |
           just test-unit 
@@ -134,7 +134,7 @@ jobs:
   #       with:
   #         node-version-file: .github/workflows/.node-version
   #         token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
-  #     - uses: extractions/setup-just@v1
+  #     - uses: extractions/setup-just@v2
   #     - name: test cdk infra
   #       env:
   #         ENVIRONMENT: test-ci

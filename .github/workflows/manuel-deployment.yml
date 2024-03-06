@@ -27,7 +27,7 @@ jobs:
       - name: get github bot token
         id: vault-gha-bot-creds
         uses: risk/a2p-iris-get-gh-pat-token@v1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: validate ref existence
         with:
           fetch-depth: 0

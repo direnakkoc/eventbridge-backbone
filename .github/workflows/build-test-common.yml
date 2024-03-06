@@ -23,7 +23,7 @@ jobs:
     runs-on: [self-hosted, Linux]
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
       - name: install poetry
@@ -41,7 +41,7 @@ jobs:
     runs-on: [self-hosted, Linux]
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
       - name: install poetry
@@ -69,7 +69,7 @@ jobs:
     timeout-minutes: 20
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
       - name: install poetry
@@ -95,7 +95,7 @@ jobs:
     timeout-minutes: 20
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
       - name: install poetry
@@ -119,7 +119,7 @@ jobs:
   #   timeout-minutes: 20
   #   needs: build
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #       with:
   #         ref: ${{ inputs.ref }}
   #     - name: install poetry

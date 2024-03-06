@@ -1,0 +1,42 @@
+name: Manual Deployment Trigger 🧑‍🚀
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - stg
+          - int
+          - prod
+      ref:
+        description: 'Branch or commit SHA to deploy from'
+        required: true
+        default: 'main'
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  deploy:
+    runs-on: [self-hosted, Linux, platform-eng]
+    timeout-minutes: 5
+    steps:
+      - name: get github bot token
+        id: vault-gha-bot-creds
+        uses: risk/a2p-iris-get-gh-pat-token@v1
+      - uses: actions/checkout@v3
+        name: validate ref existence
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.ref }}
+      - name: get canonical commit ref
+        id: canonical-commit-ref
+        run: echo "::set-output name=ref::$(git log --grep 'skip ci' --invert-grep -n 1 --pretty='format:%H')"
+      - name: trigger deployment event
+        run: |
+          curl -f -X POST ${{ github.event.repository.deployments_url }} \
+          -u ${{ steps.vault-gha-bot-creds.outputs.token }} \
+          --data "{\"ref\": \"${{ steps.canonical-commit-ref.outputs.ref }}\", \"auto_merge\": false, \"environment\": \"${{ github.event.inputs.environment }}\", \"description\": \"Deploy ref ${{ github.event.inputs.ref }} to ${{ github.event.inputs.environment }}\", \"required_contexts\": [], \"production_environment\": ${{ github.event.inputs.environment == 'prod' }} }"

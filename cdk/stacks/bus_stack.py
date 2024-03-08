@@ -50,7 +50,9 @@ class BusStack(Stack):
             self,
             "BusLoggingRule",
             event_bus=self.bus,
-            event_pattern=aws_events.EventPattern(source=[""]),  # Match all
+            event_pattern=aws_events.EventPattern(
+                source=aws_events.Match.prefix("")
+            ),  # Match all
             targets=[CloudWatchLogGroup(self.bus_log_group)],
         )
 
@@ -58,24 +60,25 @@ class BusStack(Stack):
             id,
             app_account,
         ) in application_account_by_identifier.items():
-            normalised_identifier = id.capitalize()
             local_bus_arn = (
                 f"arn:aws:events:{Aws.REGION}:{app_account}:event-bus/local-bus-{id}"
             )
 
             rule = aws_events.Rule(
                 self,
-                f"globalTo{normalised_identifier}",
+                f"globalTo{id}",
                 event_bus=self.bus,
-                rule_name=f"globalTo{normalised_identifier}",
-                event_pattern=aws_events.EventPattern(source=[id]),
+                rule_name=f"globalTo{id}",
+                event_pattern=aws_events.EventPattern(
+                    source=aws_events.Match.anything_but(app_account),
+                ),
             )
             rule.add_target(
                 aws_events_targets.EventBus(
                     aws_events.EventBus.from_event_bus_arn(
-                        self, f"localBus{normalised_identifier}", local_bus_arn
+                        self, f"localBus{id}", local_bus_arn
                     )
                 )
             )
 
-        self.bus = self.bus
+        self.bus

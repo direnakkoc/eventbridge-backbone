@@ -4,6 +4,10 @@ import time
 from uuid import uuid4
 
 from aws_lambda_powertools import Logger, Metrics, Tracer
+from aws_lambda_powertools.utilities.data_classes import (
+    APIGatewayProxyEvent,
+    EventBridgeEvent,
+)
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from event_util import EventSender
@@ -28,7 +32,7 @@ event_sender = EventSender(SERVICE_IDENTIFIER)
 @logger.inject_lambda_context(log_event=True)
 @metrics.log_metrics()
 @tracer.capture_lambda_handler()
-def handle_order_create(event: dict, context: LambdaContext) -> dict:
+def handle_order_create(event: APIGatewayProxyEvent, context: LambdaContext) -> dict:
     logger.info(event)
 
     order_id = str(uuid4())
@@ -39,13 +43,12 @@ def handle_order_create(event: dict, context: LambdaContext) -> dict:
     return {"statusCode": 201, "body": json.dumps(order)}
 
 
-def handle_delivery_update(event: dict, context: LambdaContext) -> dict:
+def handle_delivery_update(event: EventBridgeEvent, context: LambdaContext) -> dict:
     logger.info(event)
 
     order = event["detail"]["data"]
     delivered_at = event["detail"]["data"]["delivered_at"]
 
-    # how to convert spread operator for order in python
     updated_order = {
         "order": order,
         "delivered_at": delivered_at,

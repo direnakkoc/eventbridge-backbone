@@ -19,7 +19,7 @@ app = App()
 
 bus_stage = BusStage(
     app,
-    "DirenBusStack",
+    "DirenBusStage",
     env=Environment(
         account=os.environ.get("AWS_DEFAULT_ACCOUNT", Aws.ACCOUNT_ID),
         region=os.environ.get("AWS_DEFAULT_REGION", Aws.REGION),
@@ -28,7 +28,7 @@ bus_stage = BusStage(
 
 order_stage = OrderStage(
     app,
-    "DirenOrderServiceStack",
+    "DirenOrderServiceStage",
     env=Environment(
         account=os.environ.get("AWS_DEFAULT_ACCOUNT", Aws.ACCOUNT_ID),
         region=os.environ.get("AWS_DEFAULT_REGION", Aws.REGION),
@@ -37,7 +37,7 @@ order_stage = OrderStage(
 
 delivery_stage = DeliveryStage(
     app,
-    "DirenDeliveryServiceStack",
+    "DirenDeliveryServiceStage",
     env=Environment(
         account=os.environ.get("AWS_DEFAULT_ACCOUNT", Aws.ACCOUNT_ID),
         region=os.environ.get("AWS_DEFAULT_REGION", Aws.REGION),

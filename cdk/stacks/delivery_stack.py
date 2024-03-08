@@ -10,6 +10,7 @@ from aws_cdk import (
     aws_lambda_python_alpha,
     aws_logs,
 )
+from aws_cdk.aws_events_targets import CloudWatchLogGroup
 from constructs import Construct
 
 from cdk.constants import (
@@ -37,9 +38,48 @@ class DeliveryServiceStack(Stack):
         self.global_bus = aws_events.EventBus.from_event_bus_name(
             self, "GlobalBus", "global-bus"
         )
+        self.global_bus_arn = (
+            f"arn:aws:events:{Aws.REGION}:{bus_account}:event-bus/global-bus"
+        )
+
+        self.global_bus_put_events_statement = aws_iam.PolicyStatement(
+            actions=["events:PutEvents"],
+            resources=[self.global_bus_arn],
+        )
+        self.bus_log_group = aws_logs.LogGroup(
+            self, "LocalBusLogs", retention=aws_logs.RetentionDays.ONE_WEEK
+        )
+
         self.local_bus = aws_events.EventBus(
             self, "LocalBus", event_bus_name=f"local-bus-{identifier}-delivery"
         )
+
+        aws_events.CfnEventBusPolicy(
+            self,
+            "LocalBusPolicy",
+            event_bus_name=self.local_bus.event_bus_name,
+            statement_id=f"local-bus-policy-stmt-{identifier}-delivery",
+            statement={
+                "Principal": {"AWS": self.global_bus.env.account},
+                "Action": "events:PutEvents",
+                "Resource": self.local_bus.event_bus_arn,
+                "Effect": "Allow",
+            },
+        )
+
+        aws_events.Rule(
+            self,
+            "LocalLoggingRule",
+            event_bus=self.local_bus,
+            rule_name="local-logging",
+            event_pattern=aws_events.EventPattern(
+                source=aws_events.Match.prefix("")
+            ),  # Match all
+            targets=[CloudWatchLogGroup(self.bus_log_group)],
+        )
+
+        CfnOutput(self, "localBusName", value=self.local_bus.event_bus_name)
+
         self.create_order_delivery_function()
 
     def create_order_delivery_function(self) -> None:
@@ -87,6 +127,5 @@ class DeliveryServiceStack(Stack):
         order_delivery_rule.add_target(
             aws_events_targets.LambdaFunction(order_delivery_function)
         )
-
         CfnOutput(self, "orderDeliveryRule", value=order_delivery_rule.rule_name)
         CfnOutput(self, "orderDeliveryRuleTarget", value="Target0")

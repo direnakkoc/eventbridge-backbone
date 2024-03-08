@@ -17,22 +17,22 @@ def test_stacks_synthesizes_properly(snapshot):
     )
 
     order_stack = OrderServiceStack(
-        app, 
+        app,
         "order-stack-test",
         "test-bus-order-account",
-        "test-order-service-identifier", 
-        env={"region": "eu-west-1", "account": "123456789012"}
+        "test-order-service-identifier",
+        env={"region": "eu-west-1", "account": "123456789012"},
     )
 
     bus_stack = BusStack(
-        app, 
+        app,
         "bus-stack-test",
         application_account_by_identifier={"test-bus-identifier": "123456789012"},
-        env={"region": "eu-west-1", "account": "123456789012"}
+        env={"region": "eu-west-1", "account": "123456789012"},
     )
 
     template_delivery_stack = Template.from_stack(delivery_stack)
-    template_order_stack =Template.from_stack(order_stack)
+    template_order_stack = Template.from_stack(order_stack)
     template_bus_stack = Template.from_stack(bus_stack)
 
     template_delivery_stack.resource_count_is("AWS::Lambda::Function", 2)

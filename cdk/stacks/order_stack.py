@@ -10,6 +10,7 @@ from aws_cdk import (
     aws_lambda_python_alpha,
     aws_logs,
 )
+from aws_cdk.aws_events_targets import CloudWatchLogGroup
 from constructs import Construct
 
 from cdk.constants import (
@@ -33,8 +34,35 @@ class OrderServiceStack(Stack):
         self.global_bus = aws_events.EventBus.from_event_bus_name(
             self, "GlobalBus", "global-bus"
         )
+        self.bus_log_group = aws_logs.LogGroup(
+            self, "LocalBusLogs", retention=aws_logs.RetentionDays.ONE_WEEK
+        )
         self.local_bus = aws_events.EventBus(
             self, "LocalBus", event_bus_name=f"local-bus-{identifier}-order"
+        )
+
+        aws_events.CfnEventBusPolicy(
+            self,
+            "LocalBusPolicy",
+            event_bus_name=self.local_bus.event_bus_name,
+            statement_id=f"local-bus-policy-stmt-{identifier}-order",
+            statement={
+                "Principal": {"AWS": self.global_bus.env.account},
+                "Action": "events:PutEvents",
+                "Resource": self.local_bus.event_bus_arn,
+                "Effect": "Allow",
+            },
+        )
+
+        aws_events.Rule(
+            self,
+            "LocalLoggingRule",
+            event_bus=self.local_bus,
+            rule_name="local-logging",
+            event_pattern=aws_events.EventPattern(
+                source=aws_events.Match.prefix("")
+            ),  # Match all
+            targets=[CloudWatchLogGroup(self.bus_log_group)],
         )
 
         self.create_order_create_function()

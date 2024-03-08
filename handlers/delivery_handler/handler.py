@@ -2,6 +2,7 @@ import os
 import uuid
 
 from aws_lambda_powertools import Logger, Metrics, Tracer
+from aws_lambda_powertools.utilities.data_classes import EventBridgeEvent
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from event_util import EventSender
@@ -29,7 +30,7 @@ event_sender = EventSender(SERVICE_IDENTIFIER)
 
 # Order Delivery processing - handle EventBridge events for Order.Created
 # and emit a Delivery.UpdatedEvent
-def handle_order_created(event: dict, context: LambdaContext):
+def handle_order_created(event: EventBridgeEvent, context: LambdaContext):
     logger.info(event)
 
     order = event["detail"]["data"]

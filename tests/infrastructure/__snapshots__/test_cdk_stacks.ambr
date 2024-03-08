@@ -1,0 +1,1357 @@
+# serializer version: 1
+# name: test_stacks_synthesizes_properly
+  dict({
+    'Outputs': dict({
+      'orderDeliveryRule': dict({
+        'Value': dict({
+          'Ref': 'OrderDeliveryRule5BF48788',
+        }),
+      }),
+      'orderDeliveryRuleTarget': dict({
+        'Value': 'Target0',
+      }),
+    }),
+    'Parameters': dict({
+      'BootstrapVersion': dict({
+        'Default': '/cdk-bootstrap/hnb659fds/version',
+        'Description': 'Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]',
+        'Type': 'AWS::SSM::Parameter::Value<String>',
+      }),
+    }),
+    'Resources': dict({
+      'LocalBus62E293B7': dict({
+        'Properties': dict({
+          'Name': 'local-bus-test-delivery-service-identifier-delivery',
+        }),
+        'Type': 'AWS::Events::EventBus',
+      }),
+      'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A': dict({
+        'DependsOn': list([
+          'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB',
+          'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB',
+        ]),
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
+            'S3Key': '4e26bf2d0a26f2097fb2b261f22bb51e3f6b4b52635777b1e54edbd8e2d58c35.zip',
+          }),
+          'Handler': 'index.handler',
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB',
+              'Arn',
+            ]),
+          }),
+          'Runtime': 'nodejs18.x',
+          'Timeout': 900,
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'lambda.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  'logs:PutRetentionPolicy',
+                  'logs:DeleteRetentionPolicy',
+                ]),
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB',
+          'Roles': list([
+            dict({
+              'Ref': 'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'OrderDeliveryFunctionCD8A285F': dict({
+        'DependsOn': list([
+          'OrderDeliveryFunctionServiceRoleDefaultPolicy0621AD9D',
+          'OrderDeliveryFunctionServiceRoleA3703771',
+        ]),
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
+            'S3Key': 'e93816bbd566d6fc0e111eff8a1dece7022aba4be57f413465484ccb1d4fdef0.zip',
+          }),
+          'Environment': dict({
+            'Variables': dict({
+              'ACCOUNT': dict({
+                'Ref': 'AWS::AccountId',
+              }),
+              'BUS_ARN': dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:',
+                    dict({
+                      'Ref': 'AWS::Partition',
+                    }),
+                    ':events:eu-west-1:123456789012:event-bus/global-bus',
+                  ]),
+                ]),
+              }),
+              'ENVIRONMENT': 'pytest',
+              'POWERTOOLS_NAMESPACE_NAME': 'eventbridge-backbone-messaging',
+              'POWERTOOLS_SERVICE_NAME': 'OrderDelivery',
+              'REGION': dict({
+                'Ref': 'AWS::Region',
+              }),
+              'SERVICE': 'eventbridge-backbone-messaging',
+              'SERVICE_IDENTIFIER': 'test-delivery-service-identifier',
+              'SERVICE_NAME': 'eventbridge-backbone',
+            }),
+          }),
+          'FunctionName': 'eventbridge-backbone-handle-delivery-pytest',
+          'Handler': 'delivery_handler.handler.handle_order_created',
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'OrderDeliveryFunctionServiceRoleA3703771',
+              'Arn',
+            ]),
+          }),
+          'Runtime': 'python3.10',
+          'Timeout': 10,
+          'TracingConfig': dict({
+            'Mode': 'Active',
+          }),
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'OrderDeliveryFunctionLogRetentionF6A24115': dict({
+        'Properties': dict({
+          'LogGroupName': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '/aws/lambda/',
+                dict({
+                  'Ref': 'OrderDeliveryFunctionCD8A285F',
+                }),
+              ]),
+            ]),
+          }),
+          'RetentionInDays': 7,
+          'ServiceToken': dict({
+            'Fn::GetAtt': list([
+              'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A',
+              'Arn',
+            ]),
+          }),
+        }),
+        'Type': 'Custom::LogRetention',
+      }),
+      'OrderDeliveryFunctionServiceRoleA3703771': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'lambda.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'OrderDeliveryFunctionServiceRoleDefaultPolicy0621AD9D': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  'xray:PutTraceSegments',
+                  'xray:PutTelemetryRecords',
+                ]),
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+              dict({
+                'Action': 'events:PutEvents',
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':events:eu-west-1:123456789012:event-bus/global-bus',
+                    ]),
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'OrderDeliveryFunctionServiceRoleDefaultPolicy0621AD9D',
+          'Roles': list([
+            dict({
+              'Ref': 'OrderDeliveryFunctionServiceRoleA3703771',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'OrderDeliveryRule5BF48788': dict({
+        'Properties': dict({
+          'EventBusName': dict({
+            'Ref': 'LocalBus62E293B7',
+          }),
+          'EventPattern': dict({
+            'detail-type': list([
+              'Order.Created',
+            ]),
+          }),
+          'Name': 'order-delivery-rule',
+          'State': 'ENABLED',
+          'Targets': list([
+            dict({
+              'Arn': dict({
+                'Fn::GetAtt': list([
+                  'OrderDeliveryFunctionCD8A285F',
+                  'Arn',
+                ]),
+              }),
+              'Id': 'Target0',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::Events::Rule',
+      }),
+      'OrderDeliveryRuleAllowEventRuledeliverystacktestOrderDeliveryFunction6A208F80B298BB14': dict({
+        'Properties': dict({
+          'Action': 'lambda:InvokeFunction',
+          'FunctionName': dict({
+            'Fn::GetAtt': list([
+              'OrderDeliveryFunctionCD8A285F',
+              'Arn',
+            ]),
+          }),
+          'Principal': 'events.amazonaws.com',
+          'SourceArn': dict({
+            'Fn::GetAtt': list([
+              'OrderDeliveryRule5BF48788',
+              'Arn',
+            ]),
+          }),
+        }),
+        'Type': 'AWS::Lambda::Permission',
+      }),
+    }),
+    'Rules': dict({
+      'CheckBootstrapVersion': dict({
+        'Assertions': list([
+          dict({
+            'Assert': dict({
+              'Fn::Not': list([
+                dict({
+                  'Fn::Contains': list([
+                    list([
+                      '1',
+                      '2',
+                      '3',
+                      '4',
+                      '5',
+                    ]),
+                    dict({
+                      'Ref': 'BootstrapVersion',
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+            'AssertDescription': "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+          }),
+        ]),
+      }),
+    }),
+  })
+# ---
+# name: test_stacks_synthesizes_properly.1
+  dict({
+    'Outputs': dict({
+      'globalBusName': dict({
+        'Value': dict({
+          'Ref': 'BusEA82B648',
+        }),
+      }),
+    }),
+    'Parameters': dict({
+      'BootstrapVersion': dict({
+        'Default': '/cdk-bootstrap/hnb659fds/version',
+        'Description': 'Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]',
+        'Type': 'AWS::SSM::Parameter::Value<String>',
+      }),
+    }),
+    'Resources': dict({
+      'AWS679f53fac002430cb0da5b7982bd22872D164C4C': dict({
+        'DependsOn': list([
+          'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2',
+        ]),
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
+            'S3Key': '17c16a3854838fd3ff4bda08146122a6701f33b9c86ae17f415ad0dc47a97544.zip',
+          }),
+          'Handler': 'index.handler',
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2',
+              'Arn',
+            ]),
+          }),
+          'Runtime': 'nodejs18.x',
+          'Timeout': 120,
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'lambda.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'BusEA82B648': dict({
+        'Properties': dict({
+          'Name': 'global-bus',
+        }),
+        'Type': 'AWS::Events::EventBus',
+      }),
+      'BusLoggingRuleCD754D30': dict({
+        'Properties': dict({
+          'EventBusName': dict({
+            'Ref': 'BusEA82B648',
+          }),
+          'EventPattern': dict({
+            'source': list([
+              '',
+            ]),
+          }),
+          'State': 'ENABLED',
+          'Targets': list([
+            dict({
+              'Arn': dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:',
+                    dict({
+                      'Ref': 'AWS::Partition',
+                    }),
+                    ':logs:eu-west-1:123456789012:log-group:',
+                    dict({
+                      'Ref': 'GlobalBusLogsFE60F710',
+                    }),
+                  ]),
+                ]),
+              }),
+              'Id': 'Target0',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::Events::Rule',
+      }),
+      'BusPolicy': dict({
+        'Properties': dict({
+          'EventBusName': dict({
+            'Ref': 'BusEA82B648',
+          }),
+          'Statement': dict({
+            'Action': 'events:PutEvents',
+            'Effect': 'Allow',
+            'Principal': dict({
+              'AWS': list([
+                '123456789012',
+              ]),
+            }),
+            'Resource': dict({
+              'Fn::GetAtt': list([
+                'BusEA82B648',
+                'Arn',
+              ]),
+            }),
+          }),
+          'StatementId': 'global-bus-policy-stmt',
+        }),
+        'Type': 'AWS::Events::EventBusPolicy',
+      }),
+      'EventsLogGroupPolicybusstacktestBusLoggingRule75DDFB33A59D1435': dict({
+        'DeletionPolicy': 'Delete',
+        'DependsOn': list([
+          'EventsLogGroupPolicybusstacktestBusLoggingRule75DDFB33CustomResourcePolicy954BFC1A',
+        ]),
+        'Properties': dict({
+          'Create': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '{"service":"CloudWatchLogs","action":"putResourcePolicy","parameters":{"policyName":"busstacktestEventsLogGroupPolicybusstacktestBusLoggingRule75DDFB334AD2A1EF","policyDocument":"{\\"Statement\\":[{\\"Action\\":[\\"logs:PutLogEvents\\",\\"logs:CreateLogStream\\"],\\"Effect\\":\\"Allow\\",\\"Principal\\":{\\"Service\\":\\"events.amazonaws.com\\"},\\"Resource\\":\\"',
+                dict({
+                  'Fn::GetAtt': list([
+                    'GlobalBusLogsFE60F710',
+                    'Arn',
+                  ]),
+                }),
+                '\\"}],\\"Version\\":\\"2012-10-17\\"}"},"physicalResourceId":{"id":"EventsLogGroupPolicybusstacktestBusLoggingRule75DDFB33"}}',
+              ]),
+            ]),
+          }),
+          'Delete': '{"service":"CloudWatchLogs","action":"deleteResourcePolicy","parameters":{"policyName":"busstacktestEventsLogGroupPolicybusstacktestBusLoggingRule75DDFB334AD2A1EF"},"ignoreErrorCodesMatching":"ResourceNotFoundException"}',
+          'InstallLatestAwsSdk': True,
+          'ServiceToken': dict({
+            'Fn::GetAtt': list([
+              'AWS679f53fac002430cb0da5b7982bd22872D164C4C',
+              'Arn',
+            ]),
+          }),
+          'Update': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '{"service":"CloudWatchLogs","action":"putResourcePolicy","parameters":{"policyName":"busstacktestEventsLogGroupPolicybusstacktestBusLoggingRule75DDFB334AD2A1EF","policyDocument":"{\\"Statement\\":[{\\"Action\\":[\\"logs:PutLogEvents\\",\\"logs:CreateLogStream\\"],\\"Effect\\":\\"Allow\\",\\"Principal\\":{\\"Service\\":\\"events.amazonaws.com\\"},\\"Resource\\":\\"',
+                dict({
+                  'Fn::GetAtt': list([
+                    'GlobalBusLogsFE60F710',
+                    'Arn',
+                  ]),
+                }),
+                '\\"}],\\"Version\\":\\"2012-10-17\\"}"},"physicalResourceId":{"id":"EventsLogGroupPolicybusstacktestBusLoggingRule75DDFB33"}}',
+              ]),
+            ]),
+          }),
+        }),
+        'Type': 'Custom::CloudwatchLogResourcePolicy',
+        'UpdateReplacePolicy': 'Delete',
+      }),
+      'EventsLogGroupPolicybusstacktestBusLoggingRule75DDFB33CustomResourcePolicy954BFC1A': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'logs:PutResourcePolicy',
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+              dict({
+                'Action': 'logs:DeleteResourcePolicy',
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'EventsLogGroupPolicybusstacktestBusLoggingRule75DDFB33CustomResourcePolicy954BFC1A',
+          'Roles': list([
+            dict({
+              'Ref': 'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'GlobalBusLogsFE60F710': dict({
+        'DeletionPolicy': 'Retain',
+        'Properties': dict({
+          'RetentionInDays': 7,
+        }),
+        'Type': 'AWS::Logs::LogGroup',
+        'UpdateReplacePolicy': 'Retain',
+      }),
+      'globalToTestbusidentifierC1E552C1': dict({
+        'Properties': dict({
+          'EventBusName': dict({
+            'Ref': 'BusEA82B648',
+          }),
+          'EventPattern': dict({
+            'source': list([
+              'test-bus-identifier',
+            ]),
+          }),
+          'Name': 'globalToTest-bus-identifier',
+          'State': 'ENABLED',
+          'Targets': list([
+            dict({
+              'Arn': dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:aws:events:',
+                    dict({
+                      'Ref': 'AWS::Region',
+                    }),
+                    ':123456789012:event-bus/local-bus-test-bus-identifier',
+                  ]),
+                ]),
+              }),
+              'Id': 'Target0',
+              'RoleArn': dict({
+                'Fn::GetAtt': list([
+                  'globalToTestbusidentifierEventsRole29933640',
+                  'Arn',
+                ]),
+              }),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::Events::Rule',
+      }),
+      'globalToTestbusidentifierEventsRole29933640': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'events.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'globalToTestbusidentifierEventsRoleDefaultPolicy08AEB6EF': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'events:PutEvents',
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:aws:events:',
+                      dict({
+                        'Ref': 'AWS::Region',
+                      }),
+                      ':123456789012:event-bus/local-bus-test-bus-identifier',
+                    ]),
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'globalToTestbusidentifierEventsRoleDefaultPolicy08AEB6EF',
+          'Roles': list([
+            dict({
+              'Ref': 'globalToTestbusidentifierEventsRole29933640',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+    }),
+    'Rules': dict({
+      'CheckBootstrapVersion': dict({
+        'Assertions': list([
+          dict({
+            'Assert': dict({
+              'Fn::Not': list([
+                dict({
+                  'Fn::Contains': list([
+                    list([
+                      '1',
+                      '2',
+                      '3',
+                      '4',
+                      '5',
+                    ]),
+                    dict({
+                      'Ref': 'BootstrapVersion',
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+            'AssertDescription': "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+          }),
+        ]),
+      }),
+    }),
+  })
+# ---
+# name: test_stacks_synthesizes_properly.2
+  dict({
+    'Outputs': dict({
+      'OrderApiEndpoint315A9F2C': dict({
+        'Value': dict({
+          'Fn::Join': list([
+            '',
+            list([
+              'https://',
+              dict({
+                'Ref': 'OrderApiD39141ED',
+              }),
+              '.execute-api.eu-west-1.',
+              dict({
+                'Ref': 'AWS::URLSuffix',
+              }),
+              '/',
+              dict({
+                'Ref': 'OrderApiDeploymentStageprod896808D5',
+              }),
+              '/',
+            ]),
+          ]),
+        }),
+      }),
+      'apiEndpoint': dict({
+        'Value': dict({
+          'Fn::Join': list([
+            '',
+            list([
+              'https://',
+              dict({
+                'Ref': 'OrderApiD39141ED',
+              }),
+              '.execute-api.eu-west-1.',
+              dict({
+                'Ref': 'AWS::URLSuffix',
+              }),
+              '/',
+              dict({
+                'Ref': 'OrderApiDeploymentStageprod896808D5',
+              }),
+            ]),
+          ]),
+        }),
+      }),
+      'deliveryEventsRule': dict({
+        'Value': dict({
+          'Ref': 'DeliveryHandlingRuleC010186E',
+        }),
+      }),
+      'deliveryEventsRuleTarget': dict({
+        'Value': 'Target0',
+      }),
+    }),
+    'Parameters': dict({
+      'BootstrapVersion': dict({
+        'Default': '/cdk-bootstrap/hnb659fds/version',
+        'Description': 'Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]',
+        'Type': 'AWS::SSM::Parameter::Value<String>',
+      }),
+    }),
+    'Resources': dict({
+      'CreateOrderFunction7F1C188E': dict({
+        'DependsOn': list([
+          'CreateOrderFunctionServiceRoleDefaultPolicy26A206EE',
+          'CreateOrderFunctionServiceRole1DACE62C',
+        ]),
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
+            'S3Key': 'e93816bbd566d6fc0e111eff8a1dece7022aba4be57f413465484ccb1d4fdef0.zip',
+          }),
+          'Environment': dict({
+            'Variables': dict({
+              'ACCOUNT': dict({
+                'Ref': 'AWS::AccountId',
+              }),
+              'BUS_ARN': dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:',
+                    dict({
+                      'Ref': 'AWS::Partition',
+                    }),
+                    ':events:eu-west-1:123456789012:event-bus/global-bus',
+                  ]),
+                ]),
+              }),
+              'ENVIRONMENT': 'pytest',
+              'POWERTOOLS_NAMESPACE_NAME': 'eventbridge-backbone-messaging',
+              'POWERTOOLS_SERVICE_NAME': 'OrderCreate',
+              'REGION': dict({
+                'Ref': 'AWS::Region',
+              }),
+              'SERVICE': 'eventbridge-backbone-messaging',
+              'SERVICE_IDENTIFIER': 'test-order-service-identifier',
+              'SERVICE_NAME': 'eventbridge-backbone',
+            }),
+          }),
+          'FunctionName': 'eventbridge-backbone-handle-order-create-pytest',
+          'Handler': 'order_handler.handler.handle_order_create',
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'CreateOrderFunctionServiceRole1DACE62C',
+              'Arn',
+            ]),
+          }),
+          'Runtime': 'python3.10',
+          'TracingConfig': dict({
+            'Mode': 'Active',
+          }),
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'CreateOrderFunctionLogRetentionA2947957': dict({
+        'Properties': dict({
+          'LogGroupName': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '/aws/lambda/',
+                dict({
+                  'Ref': 'CreateOrderFunction7F1C188E',
+                }),
+              ]),
+            ]),
+          }),
+          'RetentionInDays': 7,
+          'ServiceToken': dict({
+            'Fn::GetAtt': list([
+              'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A',
+              'Arn',
+            ]),
+          }),
+        }),
+        'Type': 'Custom::LogRetention',
+      }),
+      'CreateOrderFunctionServiceRole1DACE62C': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'lambda.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'CreateOrderFunctionServiceRoleDefaultPolicy26A206EE': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  'xray:PutTraceSegments',
+                  'xray:PutTelemetryRecords',
+                ]),
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+              dict({
+                'Action': 'events:PutEvents',
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':events:eu-west-1:123456789012:event-bus/global-bus',
+                    ]),
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'CreateOrderFunctionServiceRoleDefaultPolicy26A206EE',
+          'Roles': list([
+            dict({
+              'Ref': 'CreateOrderFunctionServiceRole1DACE62C',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'DeliveryHandlingRuleAllowEventRuleorderstacktestDeliveryUpdateFunction340AFBEA6C0F86EB': dict({
+        'Properties': dict({
+          'Action': 'lambda:InvokeFunction',
+          'FunctionName': dict({
+            'Fn::GetAtt': list([
+              'DeliveryUpdateFunctionD9FBEF4C',
+              'Arn',
+            ]),
+          }),
+          'Principal': 'events.amazonaws.com',
+          'SourceArn': dict({
+            'Fn::GetAtt': list([
+              'DeliveryHandlingRuleC010186E',
+              'Arn',
+            ]),
+          }),
+        }),
+        'Type': 'AWS::Lambda::Permission',
+      }),
+      'DeliveryHandlingRuleC010186E': dict({
+        'Properties': dict({
+          'EventBusName': dict({
+            'Ref': 'LocalBus62E293B7',
+          }),
+          'EventPattern': dict({
+            'detail-type': list([
+              'Delivery.Updated',
+            ]),
+          }),
+          'Name': 'order-service-rule',
+          'State': 'ENABLED',
+          'Targets': list([
+            dict({
+              'Arn': dict({
+                'Fn::GetAtt': list([
+                  'DeliveryUpdateFunctionD9FBEF4C',
+                  'Arn',
+                ]),
+              }),
+              'Id': 'Target0',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::Events::Rule',
+      }),
+      'DeliveryUpdateFunctionD9FBEF4C': dict({
+        'DependsOn': list([
+          'DeliveryUpdateFunctionServiceRoleDefaultPolicy67994193',
+          'DeliveryUpdateFunctionServiceRoleE7FDFAE0',
+        ]),
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
+            'S3Key': 'e93816bbd566d6fc0e111eff8a1dece7022aba4be57f413465484ccb1d4fdef0.zip',
+          }),
+          'Environment': dict({
+            'Variables': dict({
+              'ACCOUNT': dict({
+                'Ref': 'AWS::AccountId',
+              }),
+              'BUS_ARN': dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:',
+                    dict({
+                      'Ref': 'AWS::Partition',
+                    }),
+                    ':events:eu-west-1:123456789012:event-bus/global-bus',
+                  ]),
+                ]),
+              }),
+              'ENVIRONMENT': 'pytest',
+              'POWERTOOLS_NAMESPACE_NAME': 'eventbridge-backbone-messaging',
+              'POWERTOOLS_SERVICE_NAME': 'DeliveryUpdate',
+              'REGION': dict({
+                'Ref': 'AWS::Region',
+              }),
+              'SERVICE': 'eventbridge-backbone-messaging',
+              'SERVICE_IDENTIFIER': 'test-order-service-identifier',
+              'SERVICE_NAME': 'eventbridge-backbone',
+            }),
+          }),
+          'FunctionName': 'eventbridge-backbone-handle-delivery-update-pytest',
+          'Handler': 'order_handler.handler.handle_delivery_update',
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'DeliveryUpdateFunctionServiceRoleE7FDFAE0',
+              'Arn',
+            ]),
+          }),
+          'Runtime': 'python3.10',
+          'TracingConfig': dict({
+            'Mode': 'Active',
+          }),
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'DeliveryUpdateFunctionLogRetentionBC7CCD73': dict({
+        'Properties': dict({
+          'LogGroupName': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '/aws/lambda/',
+                dict({
+                  'Ref': 'DeliveryUpdateFunctionD9FBEF4C',
+                }),
+              ]),
+            ]),
+          }),
+          'RetentionInDays': 7,
+          'ServiceToken': dict({
+            'Fn::GetAtt': list([
+              'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A',
+              'Arn',
+            ]),
+          }),
+        }),
+        'Type': 'Custom::LogRetention',
+      }),
+      'DeliveryUpdateFunctionServiceRoleDefaultPolicy67994193': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  'xray:PutTraceSegments',
+                  'xray:PutTelemetryRecords',
+                ]),
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+              dict({
+                'Action': 'events:PutEvents',
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':events:eu-west-1:123456789012:event-bus/global-bus',
+                    ]),
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'DeliveryUpdateFunctionServiceRoleDefaultPolicy67994193',
+          'Roles': list([
+            dict({
+              'Ref': 'DeliveryUpdateFunctionServiceRoleE7FDFAE0',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'DeliveryUpdateFunctionServiceRoleE7FDFAE0': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'lambda.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'LocalBus62E293B7': dict({
+        'Properties': dict({
+          'Name': 'local-bus-test-order-service-identifier-order',
+        }),
+        'Type': 'AWS::Events::EventBus',
+      }),
+      'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A': dict({
+        'DependsOn': list([
+          'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB',
+          'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB',
+        ]),
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
+            'S3Key': '4e26bf2d0a26f2097fb2b261f22bb51e3f6b4b52635777b1e54edbd8e2d58c35.zip',
+          }),
+          'Handler': 'index.handler',
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB',
+              'Arn',
+            ]),
+          }),
+          'Runtime': 'nodejs18.x',
+          'Timeout': 900,
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'lambda.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  'logs:PutRetentionPolicy',
+                  'logs:DeleteRetentionPolicy',
+                ]),
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB',
+          'Roles': list([
+            dict({
+              'Ref': 'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'OrderApiAccountDFC9E69A': dict({
+        'DeletionPolicy': 'Retain',
+        'DependsOn': list([
+          'OrderApiD39141ED',
+        ]),
+        'Properties': dict({
+          'CloudWatchRoleArn': dict({
+            'Fn::GetAtt': list([
+              'OrderApiCloudWatchRoleB19986D5',
+              'Arn',
+            ]),
+          }),
+        }),
+        'Type': 'AWS::ApiGateway::Account',
+        'UpdateReplacePolicy': 'Retain',
+      }),
+      'OrderApiCloudWatchRoleB19986D5': dict({
+        'DeletionPolicy': 'Retain',
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'apigateway.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+        'UpdateReplacePolicy': 'Retain',
+      }),
+      'OrderApiD39141ED': dict({
+        'Properties': dict({
+          'Name': 'order',
+        }),
+        'Type': 'AWS::ApiGateway::RestApi',
+      }),
+      'OrderApiDeployment0455804D521b7e2f8a39bfa8f4ddf5033aa8a957': dict({
+        'DependsOn': list([
+          'OrderApiPOSTF622A139',
+        ]),
+        'Properties': dict({
+          'Description': 'Automatically created by the RestApi construct',
+          'RestApiId': dict({
+            'Ref': 'OrderApiD39141ED',
+          }),
+        }),
+        'Type': 'AWS::ApiGateway::Deployment',
+      }),
+      'OrderApiDeploymentStageprod896808D5': dict({
+        'DependsOn': list([
+          'OrderApiAccountDFC9E69A',
+        ]),
+        'Properties': dict({
+          'DeploymentId': dict({
+            'Ref': 'OrderApiDeployment0455804D521b7e2f8a39bfa8f4ddf5033aa8a957',
+          }),
+          'RestApiId': dict({
+            'Ref': 'OrderApiD39141ED',
+          }),
+          'StageName': 'prod',
+        }),
+        'Type': 'AWS::ApiGateway::Stage',
+      }),
+      'OrderApiPOSTApiPermissionTestorderstacktestOrderApiBF4D5561POSTD1693B0A': dict({
+        'Properties': dict({
+          'Action': 'lambda:InvokeFunction',
+          'FunctionName': dict({
+            'Fn::GetAtt': list([
+              'CreateOrderFunction7F1C188E',
+              'Arn',
+            ]),
+          }),
+          'Principal': 'apigateway.amazonaws.com',
+          'SourceArn': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                'arn:',
+                dict({
+                  'Ref': 'AWS::Partition',
+                }),
+                ':execute-api:eu-west-1:123456789012:',
+                dict({
+                  'Ref': 'OrderApiD39141ED',
+                }),
+                '/test-invoke-stage/POST/',
+              ]),
+            ]),
+          }),
+        }),
+        'Type': 'AWS::Lambda::Permission',
+      }),
+      'OrderApiPOSTApiPermissionorderstacktestOrderApiBF4D5561POSTDA845581': dict({
+        'Properties': dict({
+          'Action': 'lambda:InvokeFunction',
+          'FunctionName': dict({
+            'Fn::GetAtt': list([
+              'CreateOrderFunction7F1C188E',
+              'Arn',
+            ]),
+          }),
+          'Principal': 'apigateway.amazonaws.com',
+          'SourceArn': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                'arn:',
+                dict({
+                  'Ref': 'AWS::Partition',
+                }),
+                ':execute-api:eu-west-1:123456789012:',
+                dict({
+                  'Ref': 'OrderApiD39141ED',
+                }),
+                '/',
+                dict({
+                  'Ref': 'OrderApiDeploymentStageprod896808D5',
+                }),
+                '/POST/',
+              ]),
+            ]),
+          }),
+        }),
+        'Type': 'AWS::Lambda::Permission',
+      }),
+      'OrderApiPOSTF622A139': dict({
+        'Properties': dict({
+          'AuthorizationType': 'NONE',
+          'HttpMethod': 'POST',
+          'Integration': dict({
+            'IntegrationHttpMethod': 'POST',
+            'Type': 'AWS_PROXY',
+            'Uri': dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':apigateway:eu-west-1:lambda:path/2015-03-31/functions/',
+                  dict({
+                    'Fn::GetAtt': list([
+                      'CreateOrderFunction7F1C188E',
+                      'Arn',
+                    ]),
+                  }),
+                  '/invocations',
+                ]),
+              ]),
+            }),
+          }),
+          'ResourceId': dict({
+            'Fn::GetAtt': list([
+              'OrderApiD39141ED',
+              'RootResourceId',
+            ]),
+          }),
+          'RestApiId': dict({
+            'Ref': 'OrderApiD39141ED',
+          }),
+        }),
+        'Type': 'AWS::ApiGateway::Method',
+      }),
+    }),
+    'Rules': dict({
+      'CheckBootstrapVersion': dict({
+        'Assertions': list([
+          dict({
+            'Assert': dict({
+              'Fn::Not': list([
+                dict({
+                  'Fn::Contains': list([
+                    list([
+                      '1',
+                      '2',
+                      '3',
+                      '4',
+                      '5',
+                    ]),
+                    dict({
+                      'Ref': 'BootstrapVersion',
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+            'AssertDescription': "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+          }),
+        ]),
+      }),
+    }),
+  })
+# ---

@@ -35,7 +35,7 @@ test-unit:
 	poetry run pytest tests/unit --cov-config=.coveragerc --cov=handlers --cov-report=term
 
 test-int:
-	poetry run pytest tests/integration --cov=handlers --cov-report=term
+	poetry run pytest tests/integration
 
 test-infra: package
 	poetry run pytest tests/infrastructure

@@ -35,7 +35,7 @@ def test_stacks_synthesizes_properly(snapshot):
     template_order_stack = Template.from_stack(order_stack)
     template_bus_stack = Template.from_stack(bus_stack)
 
-    template_delivery_stack.resource_count_is("AWS::Lambda::Function", 2)
+    template_delivery_stack.resource_count_is("AWS::Lambda::Function", 3)
     assert template_delivery_stack.to_json() == snapshot()
     assert template_bus_stack.to_json() == snapshot()
     assert template_order_stack.to_json() == snapshot()

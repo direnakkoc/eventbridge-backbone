@@ -24,7 +24,9 @@ class BusStack(Stack):
         super().__init__(scope, id, **kwargs)
 
         self.principal_values = list(application_account_by_identifier.values())
-
+        print("-------", application_account_by_identifier, "-----------")
+        print(self.principal_values, "heyheyhey")
+        print(self.principal_values[0])
         self.bus_log_group = aws_logs.LogGroup(
             self, "GlobalBusLogs", retention=aws_logs.RetentionDays.ONE_WEEK
         )
@@ -39,7 +41,7 @@ class BusStack(Stack):
             event_bus_name=self.bus.event_bus_name,
             statement_id="global-bus-policy-stmt",
             statement={
-                "Principal": {"AWS": self.principal_values},
+                "Principal": {"AWS": self.principal_values[0]},
                 "Action": "events:PutEvents",
                 "Resource": self.bus.event_bus_arn,
                 "Effect": "Allow",
@@ -57,28 +59,25 @@ class BusStack(Stack):
         )
 
         for (
-            id,
+            identifier,
             app_account,
         ) in application_account_by_identifier.items():
-            local_bus_arn = (
-                f"arn:aws:events:{Aws.REGION}:{app_account}:event-bus/local-bus-{id}"
-            )
-
+            normalised_identifier = identifier.capitalize()
+            local_bus_arn = f"arn:aws:events:{Aws.REGION}:{app_account}:event-bus/local-bus-{identifier}"  # noqa E501
             rule = aws_events.Rule(
                 self,
-                f"globalTo{id}",
+                f"globalTo{normalised_identifier}",
                 event_bus=self.bus,
-                rule_name=f"globalTo{id}",
+                rule_name=f"globalTo{normalised_identifier}",
                 event_pattern=aws_events.EventPattern(
-                    source=aws_events.Match.anything_but(app_account),
+                    source=aws_events.Match.anything_but(identifier),
                 ),
             )
             rule.add_target(
                 aws_events_targets.EventBus(
                     aws_events.EventBus.from_event_bus_arn(
-                        self, f"localBus{id}", local_bus_arn
+                        self, f"localBus{normalised_identifier}", local_bus_arn
                     )
                 )
             )
-
         self.bus

@@ -18,7 +18,7 @@ class BusStage(Stage):
             self,
             "DirenBusStack",
             application_account_by_identifier={
-                "ORDER_SERVICE_IDENTIFIER": ORDER_SERVICE_IDENTIFIER,
-                "DELIVERY_SERVICE_IDENTIFIER": DELIVERY_SERVICE_IDENTIFIER,
+                "order-service": ORDER_SERVICE_IDENTIFIER,
+                "delivery-service": DELIVERY_SERVICE_IDENTIFIER,
             },
         )

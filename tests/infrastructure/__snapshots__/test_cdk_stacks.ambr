@@ -2,6 +2,11 @@
 # name: test_stacks_synthesizes_properly
   dict({
     'Outputs': dict({
+      'localBusName': dict({
+        'Value': dict({
+          'Ref': 'LocalBus62E293B7',
+        }),
+      }),
       'orderDeliveryRule': dict({
         'Value': dict({
           'Ref': 'OrderDeliveryRule5BF48788',
@@ -19,11 +24,204 @@
       }),
     }),
     'Resources': dict({
+      'AWS679f53fac002430cb0da5b7982bd22872D164C4C': dict({
+        'DependsOn': list([
+          'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2',
+        ]),
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
+            'S3Key': '17c16a3854838fd3ff4bda08146122a6701f33b9c86ae17f415ad0dc47a97544.zip',
+          }),
+          'Handler': 'index.handler',
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2',
+              'Arn',
+            ]),
+          }),
+          'Runtime': 'nodejs18.x',
+          'Timeout': 120,
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'lambda.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'EventsLogGroupPolicydeliverystacktestLocalLoggingRuleCEA0EFA10D3DD353': dict({
+        'DeletionPolicy': 'Delete',
+        'DependsOn': list([
+          'EventsLogGroupPolicydeliverystacktestLocalLoggingRuleCEA0EFA1CustomResourcePolicy8EE8DB47',
+        ]),
+        'Properties': dict({
+          'Create': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '{"service":"CloudWatchLogs","action":"putResourcePolicy","parameters":{"policyName":"deliverystacktestEventsLogGroupPolicydeliverystacktestLocalLoggingRuleCEA0EFA1FCA19940","policyDocument":"{\\"Statement\\":[{\\"Action\\":[\\"logs:PutLogEvents\\",\\"logs:CreateLogStream\\"],\\"Effect\\":\\"Allow\\",\\"Principal\\":{\\"Service\\":\\"events.amazonaws.com\\"},\\"Resource\\":\\"',
+                dict({
+                  'Fn::GetAtt': list([
+                    'LocalBusLogs8F7C56C2',
+                    'Arn',
+                  ]),
+                }),
+                '\\"}],\\"Version\\":\\"2012-10-17\\"}"},"physicalResourceId":{"id":"EventsLogGroupPolicydeliverystacktestLocalLoggingRuleCEA0EFA1"}}',
+              ]),
+            ]),
+          }),
+          'Delete': '{"service":"CloudWatchLogs","action":"deleteResourcePolicy","parameters":{"policyName":"deliverystacktestEventsLogGroupPolicydeliverystacktestLocalLoggingRuleCEA0EFA1FCA19940"},"ignoreErrorCodesMatching":"ResourceNotFoundException"}',
+          'InstallLatestAwsSdk': True,
+          'ServiceToken': dict({
+            'Fn::GetAtt': list([
+              'AWS679f53fac002430cb0da5b7982bd22872D164C4C',
+              'Arn',
+            ]),
+          }),
+          'Update': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '{"service":"CloudWatchLogs","action":"putResourcePolicy","parameters":{"policyName":"deliverystacktestEventsLogGroupPolicydeliverystacktestLocalLoggingRuleCEA0EFA1FCA19940","policyDocument":"{\\"Statement\\":[{\\"Action\\":[\\"logs:PutLogEvents\\",\\"logs:CreateLogStream\\"],\\"Effect\\":\\"Allow\\",\\"Principal\\":{\\"Service\\":\\"events.amazonaws.com\\"},\\"Resource\\":\\"',
+                dict({
+                  'Fn::GetAtt': list([
+                    'LocalBusLogs8F7C56C2',
+                    'Arn',
+                  ]),
+                }),
+                '\\"}],\\"Version\\":\\"2012-10-17\\"}"},"physicalResourceId":{"id":"EventsLogGroupPolicydeliverystacktestLocalLoggingRuleCEA0EFA1"}}',
+              ]),
+            ]),
+          }),
+        }),
+        'Type': 'Custom::CloudwatchLogResourcePolicy',
+        'UpdateReplacePolicy': 'Delete',
+      }),
+      'EventsLogGroupPolicydeliverystacktestLocalLoggingRuleCEA0EFA1CustomResourcePolicy8EE8DB47': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'logs:PutResourcePolicy',
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+              dict({
+                'Action': 'logs:DeleteResourcePolicy',
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'EventsLogGroupPolicydeliverystacktestLocalLoggingRuleCEA0EFA1CustomResourcePolicy8EE8DB47',
+          'Roles': list([
+            dict({
+              'Ref': 'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
       'LocalBus62E293B7': dict({
         'Properties': dict({
-          'Name': 'local-bus-test-delivery-service-identifier-delivery',
+          'Name': 'local-bus-test-delivery-service-identifier',
         }),
         'Type': 'AWS::Events::EventBus',
+      }),
+      'LocalBusLogs8F7C56C2': dict({
+        'DeletionPolicy': 'Retain',
+        'Properties': dict({
+          'RetentionInDays': 7,
+        }),
+        'Type': 'AWS::Logs::LogGroup',
+        'UpdateReplacePolicy': 'Retain',
+      }),
+      'LocalBusPolicy': dict({
+        'Properties': dict({
+          'EventBusName': dict({
+            'Ref': 'LocalBus62E293B7',
+          }),
+          'Statement': dict({
+            'Action': 'events:PutEvents',
+            'Effect': 'Allow',
+            'Principal': dict({
+              'AWS': 'test-bus-delivery-account',
+            }),
+            'Resource': dict({
+              'Fn::GetAtt': list([
+                'LocalBus62E293B7',
+                'Arn',
+              ]),
+            }),
+          }),
+          'StatementId': 'local-bus-policy-stmt-test-delivery-service-identifier',
+        }),
+        'Type': 'AWS::Events::EventBusPolicy',
+      }),
+      'LocalLoggingRuleAFDDE2C6': dict({
+        'Properties': dict({
+          'EventBusName': dict({
+            'Ref': 'LocalBus62E293B7',
+          }),
+          'EventPattern': dict({
+            'source': list([
+              dict({
+                'prefix': '',
+              }),
+            ]),
+          }),
+          'Name': 'local-logging',
+          'State': 'ENABLED',
+          'Targets': list([
+            dict({
+              'Arn': dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:',
+                    dict({
+                      'Ref': 'AWS::Partition',
+                    }),
+                    ':logs:eu-west-1:123456789012:log-group:',
+                    dict({
+                      'Ref': 'LocalBusLogs8F7C56C2',
+                    }),
+                  ]),
+                ]),
+              }),
+              'Id': 'Target0',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::Events::Rule',
       }),
       'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A': dict({
         'DependsOn': list([
@@ -110,7 +308,7 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': 'e93816bbd566d6fc0e111eff8a1dece7022aba4be57f413465484ccb1d4fdef0.zip',
+            'S3Key': 'cd6a93b5b0f34efaea43b370ae33a3e31ff5032ae5a270602ce4cbb5e46a4be5.zip',
           }),
           'Environment': dict({
             'Variables': dict({
@@ -121,11 +319,11 @@
                 'Fn::Join': list([
                   '',
                   list([
-                    'arn:',
+                    'arn:aws:events:',
                     dict({
-                      'Ref': 'AWS::Partition',
+                      'Ref': 'AWS::Region',
                     }),
-                    ':events:eu-west-1:123456789012:event-bus/global-bus',
+                    ':test-bus-delivery-account:event-bus/global-bus',
                   ]),
                 ]),
               }),
@@ -229,11 +427,11 @@
                   'Fn::Join': list([
                     '',
                     list([
-                      'arn:',
+                      'arn:aws:events:',
                       dict({
-                        'Ref': 'AWS::Partition',
+                        'Ref': 'AWS::Region',
                       }),
-                      ':events:eu-west-1:123456789012:event-bus/global-bus',
+                      ':test-bus-delivery-account:event-bus/global-bus',
                     ]),
                   ]),
                 }),
@@ -407,7 +605,9 @@
           }),
           'EventPattern': dict({
             'source': list([
-              '',
+              dict({
+                'prefix': '',
+              }),
             ]),
           }),
           'State': 'ENABLED',
@@ -443,9 +643,7 @@
             'Action': 'events:PutEvents',
             'Effect': 'Allow',
             'Principal': dict({
-              'AWS': list([
-                '123456789012',
-              ]),
+              'AWS': '123456789012',
             }),
             'Resource': dict({
               'Fn::GetAtt': list([
@@ -547,7 +745,11 @@
           }),
           'EventPattern': dict({
             'source': list([
-              'test-bus-identifier',
+              dict({
+                'anything-but': list([
+                  'test-bus-identifier',
+                ]),
+              }),
             ]),
           }),
           'Name': 'globalToTest-bus-identifier',
@@ -711,6 +913,11 @@
       'deliveryEventsRuleTarget': dict({
         'Value': 'Target0',
       }),
+      'localBusName': dict({
+        'Value': dict({
+          'Ref': 'LocalBus62E293B7',
+        }),
+      }),
     }),
     'Parameters': dict({
       'BootstrapVersion': dict({
@@ -720,6 +927,58 @@
       }),
     }),
     'Resources': dict({
+      'AWS679f53fac002430cb0da5b7982bd22872D164C4C': dict({
+        'DependsOn': list([
+          'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2',
+        ]),
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
+            'S3Key': '17c16a3854838fd3ff4bda08146122a6701f33b9c86ae17f415ad0dc47a97544.zip',
+          }),
+          'Handler': 'index.handler',
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2',
+              'Arn',
+            ]),
+          }),
+          'Runtime': 'nodejs18.x',
+          'Timeout': 120,
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'lambda.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
       'CreateOrderFunction7F1C188E': dict({
         'DependsOn': list([
           'CreateOrderFunctionServiceRoleDefaultPolicy26A206EE',
@@ -728,7 +987,7 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': 'e93816bbd566d6fc0e111eff8a1dece7022aba4be57f413465484ccb1d4fdef0.zip',
+            'S3Key': 'cd6a93b5b0f34efaea43b370ae33a3e31ff5032ae5a270602ce4cbb5e46a4be5.zip',
           }),
           'Environment': dict({
             'Variables': dict({
@@ -739,11 +998,11 @@
                 'Fn::Join': list([
                   '',
                   list([
-                    'arn:',
+                    'arn:aws:events:',
                     dict({
-                      'Ref': 'AWS::Partition',
+                      'Ref': 'AWS::Region',
                     }),
-                    ':events:eu-west-1:123456789012:event-bus/global-bus',
+                    ':test-bus-order-account:event-bus/global-bus',
                   ]),
                 ]),
               }),
@@ -846,11 +1105,11 @@
                   'Fn::Join': list([
                     '',
                     list([
-                      'arn:',
+                      'arn:aws:events:',
                       dict({
-                        'Ref': 'AWS::Partition',
+                        'Ref': 'AWS::Region',
                       }),
-                      ':events:eu-west-1:123456789012:event-bus/global-bus',
+                      ':test-bus-order-account:event-bus/global-bus',
                     ]),
                   ]),
                 }),
@@ -920,7 +1179,7 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': 'e93816bbd566d6fc0e111eff8a1dece7022aba4be57f413465484ccb1d4fdef0.zip',
+            'S3Key': 'cd6a93b5b0f34efaea43b370ae33a3e31ff5032ae5a270602ce4cbb5e46a4be5.zip',
           }),
           'Environment': dict({
             'Variables': dict({
@@ -931,11 +1190,11 @@
                 'Fn::Join': list([
                   '',
                   list([
-                    'arn:',
+                    'arn:aws:events:',
                     dict({
-                      'Ref': 'AWS::Partition',
+                      'Ref': 'AWS::Region',
                     }),
-                    ':events:eu-west-1:123456789012:event-bus/global-bus',
+                    ':test-bus-order-account:event-bus/global-bus',
                   ]),
                 ]),
               }),
@@ -1007,11 +1266,11 @@
                   'Fn::Join': list([
                     '',
                     list([
-                      'arn:',
+                      'arn:aws:events:',
                       dict({
-                        'Ref': 'AWS::Partition',
+                        'Ref': 'AWS::Region',
                       }),
-                      ':events:eu-west-1:123456789012:event-bus/global-bus',
+                      ':test-bus-order-account:event-bus/global-bus',
                     ]),
                   ]),
                 }),
@@ -1059,11 +1318,152 @@
         }),
         'Type': 'AWS::IAM::Role',
       }),
+      'EventsLogGroupPolicyorderstacktestLocalLoggingRule6BBE22EA68B00BF3': dict({
+        'DeletionPolicy': 'Delete',
+        'DependsOn': list([
+          'EventsLogGroupPolicyorderstacktestLocalLoggingRule6BBE22EACustomResourcePolicy819A0075',
+        ]),
+        'Properties': dict({
+          'Create': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '{"service":"CloudWatchLogs","action":"putResourcePolicy","parameters":{"policyName":"orderstacktestEventsLogGroupPolicyorderstacktestLocalLoggingRule6BBE22EADA0EEB93","policyDocument":"{\\"Statement\\":[{\\"Action\\":[\\"logs:PutLogEvents\\",\\"logs:CreateLogStream\\"],\\"Effect\\":\\"Allow\\",\\"Principal\\":{\\"Service\\":\\"events.amazonaws.com\\"},\\"Resource\\":\\"',
+                dict({
+                  'Fn::GetAtt': list([
+                    'LocalBusLogs8F7C56C2',
+                    'Arn',
+                  ]),
+                }),
+                '\\"}],\\"Version\\":\\"2012-10-17\\"}"},"physicalResourceId":{"id":"EventsLogGroupPolicyorderstacktestLocalLoggingRule6BBE22EA"}}',
+              ]),
+            ]),
+          }),
+          'Delete': '{"service":"CloudWatchLogs","action":"deleteResourcePolicy","parameters":{"policyName":"orderstacktestEventsLogGroupPolicyorderstacktestLocalLoggingRule6BBE22EADA0EEB93"},"ignoreErrorCodesMatching":"ResourceNotFoundException"}',
+          'InstallLatestAwsSdk': True,
+          'ServiceToken': dict({
+            'Fn::GetAtt': list([
+              'AWS679f53fac002430cb0da5b7982bd22872D164C4C',
+              'Arn',
+            ]),
+          }),
+          'Update': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '{"service":"CloudWatchLogs","action":"putResourcePolicy","parameters":{"policyName":"orderstacktestEventsLogGroupPolicyorderstacktestLocalLoggingRule6BBE22EADA0EEB93","policyDocument":"{\\"Statement\\":[{\\"Action\\":[\\"logs:PutLogEvents\\",\\"logs:CreateLogStream\\"],\\"Effect\\":\\"Allow\\",\\"Principal\\":{\\"Service\\":\\"events.amazonaws.com\\"},\\"Resource\\":\\"',
+                dict({
+                  'Fn::GetAtt': list([
+                    'LocalBusLogs8F7C56C2',
+                    'Arn',
+                  ]),
+                }),
+                '\\"}],\\"Version\\":\\"2012-10-17\\"}"},"physicalResourceId":{"id":"EventsLogGroupPolicyorderstacktestLocalLoggingRule6BBE22EA"}}',
+              ]),
+            ]),
+          }),
+        }),
+        'Type': 'Custom::CloudwatchLogResourcePolicy',
+        'UpdateReplacePolicy': 'Delete',
+      }),
+      'EventsLogGroupPolicyorderstacktestLocalLoggingRule6BBE22EACustomResourcePolicy819A0075': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'logs:PutResourcePolicy',
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+              dict({
+                'Action': 'logs:DeleteResourcePolicy',
+                'Effect': 'Allow',
+                'Resource': '*',
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'EventsLogGroupPolicyorderstacktestLocalLoggingRule6BBE22EACustomResourcePolicy819A0075',
+          'Roles': list([
+            dict({
+              'Ref': 'AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
       'LocalBus62E293B7': dict({
         'Properties': dict({
-          'Name': 'local-bus-test-order-service-identifier-order',
+          'Name': 'local-bus-test-order-service-identifier',
         }),
         'Type': 'AWS::Events::EventBus',
+      }),
+      'LocalBusLogs8F7C56C2': dict({
+        'DeletionPolicy': 'Retain',
+        'Properties': dict({
+          'RetentionInDays': 7,
+        }),
+        'Type': 'AWS::Logs::LogGroup',
+        'UpdateReplacePolicy': 'Retain',
+      }),
+      'LocalBusPolicy': dict({
+        'Properties': dict({
+          'EventBusName': dict({
+            'Ref': 'LocalBus62E293B7',
+          }),
+          'Statement': dict({
+            'Action': 'events:PutEvents',
+            'Effect': 'Allow',
+            'Principal': dict({
+              'AWS': 'test-bus-order-account',
+            }),
+            'Resource': dict({
+              'Fn::GetAtt': list([
+                'LocalBus62E293B7',
+                'Arn',
+              ]),
+            }),
+          }),
+          'StatementId': 'local-bus-policy-stmt-test-order-service-identifier',
+        }),
+        'Type': 'AWS::Events::EventBusPolicy',
+      }),
+      'LocalLoggingRuleAFDDE2C6': dict({
+        'Properties': dict({
+          'EventBusName': dict({
+            'Ref': 'LocalBus62E293B7',
+          }),
+          'EventPattern': dict({
+            'source': list([
+              dict({
+                'prefix': '',
+              }),
+            ]),
+          }),
+          'Name': 'local-logging',
+          'State': 'ENABLED',
+          'Targets': list([
+            dict({
+              'Arn': dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:',
+                    dict({
+                      'Ref': 'AWS::Partition',
+                    }),
+                    ':logs:eu-west-1:123456789012:log-group:',
+                    dict({
+                      'Ref': 'LocalBusLogs8F7C56C2',
+                    }),
+                  ]),
+                ]),
+              }),
+              'Id': 'Target0',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::Events::Rule',
       }),
       'LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A': dict({
         'DependsOn': list([

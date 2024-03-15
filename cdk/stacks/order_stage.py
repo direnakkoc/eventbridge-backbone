@@ -1,7 +1,7 @@
 from aws_cdk import Stage
 from constructs import Construct
 
-from ..constants import BUS_ACCOUNT, ORDER_SERVICE_IDENTIFIER
+from ..constants import BUS_ACCOUNT
 from .order_stack import OrderServiceStack
 
 
@@ -18,5 +18,5 @@ class OrderStage(Stage):
             self,
             "DirenOrderServiceStack",
             bus_account=BUS_ACCOUNT,
-            identifier=ORDER_SERVICE_IDENTIFIER,
+            identifier="order-service",
         )

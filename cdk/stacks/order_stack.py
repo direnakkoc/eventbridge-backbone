@@ -1,7 +1,6 @@
 from aws_cdk import (
     Aws,
     CfnOutput,
-    Stack,
     aws_apigateway,
     aws_events,
     aws_events_targets,
@@ -10,60 +9,25 @@ from aws_cdk import (
     aws_lambda_python_alpha,
     aws_logs,
 )
-from aws_cdk.aws_events_targets import CloudWatchLogGroup
 from constructs import Construct
 
 from cdk.constants import (
     ENVIRONMENT,
     SERVICE_NAME,
 )
+from cdk.stacks.base_stack import BaseStack
 
 
-class OrderServiceStack(Stack):
+class OrderServiceStack(BaseStack):
     def __init__(
         self,
         scope: Construct,
         id: str,
-        bus_account,
-        identifier,
+        bus_account: str,
+        identifier: str,
         **kwargs,
     ) -> None:
-        super().__init__(scope, id, **kwargs)
-        self.bus_account = bus_account
-        self.identifier = identifier
-        self.global_bus = aws_events.EventBus.from_event_bus_name(
-            self, "GlobalBus", "global-bus"
-        )
-        self.bus_log_group = aws_logs.LogGroup(
-            self, "LocalBusLogs", retention=aws_logs.RetentionDays.ONE_WEEK
-        )
-        self.local_bus = aws_events.EventBus(
-            self, "LocalBus", event_bus_name=f"local-bus-{identifier}-order"
-        )
-
-        aws_events.CfnEventBusPolicy(
-            self,
-            "LocalBusPolicy",
-            event_bus_name=self.local_bus.event_bus_name,
-            statement_id=f"local-bus-policy-stmt-{identifier}-order",
-            statement={
-                "Principal": {"AWS": self.global_bus.env.account},
-                "Action": "events:PutEvents",
-                "Resource": self.local_bus.event_bus_arn,
-                "Effect": "Allow",
-            },
-        )
-
-        aws_events.Rule(
-            self,
-            "LocalLoggingRule",
-            event_bus=self.local_bus,
-            rule_name="local-logging",
-            event_pattern=aws_events.EventPattern(
-                source=aws_events.Match.prefix("")
-            ),  # Match all
-            targets=[CloudWatchLogGroup(self.bus_log_group)],
-        )
+        super().__init__(scope, id, bus_account, identifier, **kwargs)
 
         self.create_order_create_function()
         self.create_delivery_update_function()

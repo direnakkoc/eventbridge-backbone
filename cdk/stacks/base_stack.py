@@ -59,13 +59,15 @@ class BaseStack(Stack):
             },
         )
 
-        local_logging_rule = aws_events.Rule(
+        aws_events.Rule(
             self,
             "LocalLoggingRule",
             event_bus=self.local_bus,
             rule_name="local-logging",
-            event_pattern={"source": [{"prefix": ""}]},  # Match all
+            event_pattern=aws_events.EventPattern(
+                source=aws_events.Match.prefix("")
+            ),  # Match all
+            targets=[CloudWatchLogGroup(self.bus_log_group)],
         )
-        local_logging_rule.add_target(CloudWatchLogGroup(self.bus_log_group))
 
         self.local_bus = self.local_bus

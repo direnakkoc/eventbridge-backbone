@@ -4,7 +4,6 @@ from aws_cdk import (
     aws_apigateway,
     aws_events,
     aws_events_targets,
-    aws_iam,
     aws_lambda,
     aws_lambda_python_alpha,
     aws_logs,
@@ -55,13 +54,7 @@ class OrderServiceStack(BaseStack):
             log_retention=aws_logs.RetentionDays.ONE_WEEK,
             tracing=aws_lambda.Tracing.ACTIVE,
         )
-        create_order_function.add_to_role_policy(
-            aws_iam.PolicyStatement(
-                effect=aws_iam.Effect.ALLOW,
-                resources=[self.global_bus.event_bus_arn],
-                actions=["events:PutEvents"],
-            )
-        )
+        create_order_function.add_to_role_policy(self.global_bus_put_events_statement)
         api = aws_apigateway.RestApi(self, "OrderApi", rest_api_name="order")
         api.root.add_method(
             "POST", aws_apigateway.LambdaIntegration(create_order_function)
@@ -97,11 +90,7 @@ class OrderServiceStack(BaseStack):
             tracing=aws_lambda.Tracing.ACTIVE,
         )
         delivery_update_function.add_to_role_policy(
-            aws_iam.PolicyStatement(
-                effect=aws_iam.Effect.ALLOW,
-                resources=[self.global_bus.event_bus_arn],
-                actions=["events:PutEvents"],
-            )
+            self.global_bus_put_events_statement
         )
 
         # React to delivery events

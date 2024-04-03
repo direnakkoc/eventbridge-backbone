@@ -1,8 +1,11 @@
 from aws_cdk import Stage
 from constructs import Construct
 
-from ..constants import DELIVERY_SERVICE_IDENTIFIER, ORDER_SERVICE_IDENTIFIER
+from ..constants import DELIVERY_SERVICE_ACCOUNT, ORDER_SERVICE_ACCOUNT
 from .bus_stack import BusStack
+
+ORDER_SERVICE_IDENTIFIER = "order-service"
+DELIVERY_SERVICE_IDENTIFIER = "delivery-service"
 
 
 class BusStage(Stage):
@@ -18,7 +21,7 @@ class BusStage(Stage):
             self,
             "DirenBusStack",
             application_account_by_identifier={
-                "order-service": ORDER_SERVICE_IDENTIFIER,
-                "delivery-service": DELIVERY_SERVICE_IDENTIFIER,
+                ORDER_SERVICE_IDENTIFIER: ORDER_SERVICE_ACCOUNT,
+                DELIVERY_SERVICE_IDENTIFIER: DELIVERY_SERVICE_ACCOUNT,
             },
         )

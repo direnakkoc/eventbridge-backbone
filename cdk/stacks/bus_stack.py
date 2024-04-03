@@ -24,9 +24,6 @@ class BusStack(Stack):
         super().__init__(scope, id, **kwargs)
 
         self.principal_values = list(application_account_by_identifier.values())
-        print("-------", application_account_by_identifier, "-----------")
-        print(self.principal_values, "heyheyhey")
-        print(self.principal_values[0])
         self.bus_log_group = aws_logs.LogGroup(
             self, "GlobalBusLogs", retention=aws_logs.RetentionDays.ONE_WEEK
         )
@@ -41,7 +38,7 @@ class BusStack(Stack):
             event_bus_name=self.bus.event_bus_name,
             statement_id="global-bus-policy-stmt",
             statement={
-                "Principal": {"AWS": self.principal_values[0]},
+                "Principal": {"AWS": self.principal_values},
                 "Action": "events:PutEvents",
                 "Resource": self.bus.event_bus_arn,
                 "Effect": "Allow",
@@ -63,7 +60,7 @@ class BusStack(Stack):
             app_account,
         ) in application_account_by_identifier.items():
             normalised_identifier = identifier.capitalize()
-            local_bus_arn = f"arn:aws:events:{Aws.REGION}:{app_account}:event-bus/local-bus-{identifier}"  # noqa E501
+            local_bus_arn = f"arn:aws:events:{Aws.REGION}:{app_account}:event-bus/d-local-bus-{identifier}"  # noqa E501
             rule = aws_events.Rule(
                 self,
                 f"globalTo{normalised_identifier}",

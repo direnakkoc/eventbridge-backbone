@@ -4,7 +4,6 @@ from aws_cdk import (
     Duration,
     aws_events,
     aws_events_targets,
-    aws_iam,
     aws_lambda,
     aws_lambda_python_alpha,
     aws_logs,
@@ -60,13 +59,7 @@ class DeliveryServiceStack(BaseStack):
             log_retention=aws_logs.RetentionDays.ONE_WEEK,
             tracing=aws_lambda.Tracing.ACTIVE,
         )
-        order_delivery_function.add_to_role_policy(
-            aws_iam.PolicyStatement(
-                effect=aws_iam.Effect.ALLOW,
-                resources=[self.global_bus.event_bus_arn],
-                actions=["events:PutEvents"],
-            )
-        )
+        order_delivery_function.add_to_role_policy(self.global_bus_put_events_statement)
 
         # The delivery function reacts to orders being created
         order_delivery_rule = aws_events.Rule(

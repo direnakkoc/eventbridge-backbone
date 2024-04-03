@@ -32,8 +32,9 @@ class BaseStack(Stack):
         # This is a reusable policy statement that allows Lambda
         # functions to publish events to the global bus
         self.global_bus_put_events_statement = aws_iam.PolicyStatement(
-            actions=["events:PutEvents"],
+            effect=aws_iam.Effect.ALLOW,
             resources=[self.global_bus_arn],
+            actions=["events:PutEvents"],
         )
 
         self.bus_log_group = aws_logs.LogGroup(
@@ -41,7 +42,7 @@ class BaseStack(Stack):
         )
 
         self.local_bus = aws_events.EventBus(
-            self, "LocalBus", event_bus_name=f"local-bus-{identifier}"
+            self, "LocalBus", event_bus_name=f"d-local-bus-{identifier}"
         )
 
         CfnOutput(self, "localBusName", value=self.local_bus.event_bus_name)
@@ -50,7 +51,7 @@ class BaseStack(Stack):
             self,
             "LocalBusPolicy",
             event_bus_name=self.local_bus.event_bus_name,
-            statement_id=f"local-bus-policy-stmt-{identifier}",
+            statement_id=f"d-local-bus-policy-stmt-{identifier}",
             statement={
                 "Principal": {"AWS": self.global_bus.env.account},
                 "Action": "events:PutEvents",

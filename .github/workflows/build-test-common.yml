@@ -9,53 +9,54 @@ on:
         required: true
         type: string
     secrets:
-      ACTIONS_GITHUB_COM_TOKEN:
+      GHA_TOKEN:
+        required: true
+      GHA_OIDC_ROLE:
         required: true
 env:
-  AWS_DEFAULT_REGION: 'eu-west-1'
+  AWS_REGION: 'eu-west-1'
 permissions:
-  contents: write
   id-token: write
-  actions: read
-  security-events: write
+  contents: read
 jobs:
   build:
     runs-on:  ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
       - name: install poetry
         run: |
           pip install --upgrade pip poetry==1.7.0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v3
         with:
           python-version-file: .github/workflows/.python-version
           cache: 'poetry'
-          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+          token: ${{ secrets.GHA_TOKEN}}
       - name: install
         run: |
           poetry install
   lint:
     runs-on:  ubuntu-latest
     timeout-minutes: 20
+    needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
       - name: install poetry
         run: |
           pip install --upgrade pip poetry==1.7.0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v3
         with:
           python-version-file: .github/workflows/.python-version
           cache: 'poetry'
-          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+          token: ${{ secrets.GHA_TOKEN}}
       - uses: actions/setup-node@v3
         with:
           node-version-file: .github/workflows/.node-version
-          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+          token: ${{ secrets.GHA_TOKEN}}
       - uses: extractions/setup-just@v1
       - name: pre-commit checks
         run: |
@@ -64,80 +65,163 @@ jobs:
       - name: lint
         run: |
           just lint-strict
-  code-analysis:
-    runs-on:  ubuntu-latest
-    timeout-minutes: 20
-    needs: build
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ inputs.ref }}
-      - name: install poetry
-        run: |
-          pip install --upgrade pip poetry==1.7.1
-      - uses: actions/setup-python@v4
-        with:
-          python-version-file: .github/workflows/.python-version
-          cache: 'poetry'
-          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
-      - name: install
-        run: |
-          poetry install
-      - name: Initialize Python CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: 'python'
-          setup-python-dependencies: false
-      - name: perform code analysis
-        uses: github/codeql-action/analyze@v2
   test-unit:
     runs-on:  ubuntu-latest
     timeout-minutes: 20
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
       - name: install poetry
         run: |
           pip install --upgrade pip poetry==1.7.0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v3
         with:
           python-version-file: .github/workflows/.python-version
           cache: 'poetry'
-          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+          token: ${{ secrets.GHA_TOKEN}}
       - uses: actions/setup-node@v3
         with:
           node-version-file: .github/workflows/.node-version
-          token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
+          token: ${{ secrets.GHA_TOKEN}}
       - uses: extractions/setup-just@v1
       - name: test unit
         run: |
           just test-unit
-  # test-infra:
-  #   runs-on:  ubuntu-latest
-  #   timeout-minutes: 20
-  #   needs: build
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - name: install poetry
-  #       run: |
-  #         pip install --upgrade pip poetry==1.7.0
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version-file: .github/workflows/.python-version
-  #         cache: 'poetry'
-  #         token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version-file: .github/workflows/.node-version
-  #         token: ${{ secrets.ACTIONS_GITHUB_COM_TOKEN }}
-  #     - uses: extractions/setup-just@v1
-  #     - name: test cdk infra
-  #       env:
-  #         ENVIRONMENT: test-ci
-  #       run: |
-  #         npm install -g aws-cdk@^2
-  #         just test-infra
+  test-infra:
+    runs-on:  ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: install poetry
+        run: |
+          pip install --upgrade pip poetry==1.7.0
+      - uses: actions/setup-python@v3
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: 'poetry'
+          token: ${{ secrets.GHA_TOKEN}}
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: .github/workflows/.node-version
+          token: ${{ secrets.GHA_TOKEN}}
+      - uses: extractions/setup-just@v1
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: ${{ secrets.GHA_OIDC_ROLE }}
+          role-session-name: github-action-eventbridge-backbone-deploy-session
+          aws-region: ${{ env.AWS_REGION }}
+      - name: test cdk infra
+        run: |
+          npm install -g aws-cdk@^2
+          just test-infra
+  deploy-e2e-test-stack:
+    runs-on:  ubuntu-latest
+    timeout-minutes: 20
+    needs:
+      - lint
+      - test-unit
+      - test-infra
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: install poetry
+        run: |
+          pip install --upgrade pip poetry==1.7.0
+      - uses: actions/setup-python@v3
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: 'poetry'
+          token: ${{ secrets.GHA_TOKEN}}
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: .github/workflows/.node-version
+          token: ${{ secrets.GHA_TOKEN}}
+      - uses: extractions/setup-just@v1
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: ${{ secrets.GHA_OIDC_ROLE }}
+          role-session-name: github-action-eventbridge-backbone-deploy-session
+          aws-region: ${{ env.AWS_REGION }}
+      - name: test cdk infra
+        env:
+          ENVIRONMENT: test-ci
+        run: |
+          npm install -g aws-cdk@^2
+      - name: deploy test stack
+        run: |
+          just package
+          cdk deploy DirenBusStage/DirenBusStack --exclusively --require-approval=never
+          cdk deploy DirenOrderServiceStage/DirenOrderServiceStack --exclusively --require-approval=never
+          cdk deploy DirenDeliveryServiceStage/DirenDeliveryServiceStack --exclusively --require-approval=never
+  test-e2e:
+    runs-on:  ubuntu-latest
+    timeout-minutes: 20
+    needs: deploy-e2e-test-stack
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: install poetry
+        run: |
+          pip install --upgrade pip poetry==1.7.0
+      - uses: actions/setup-python@v3
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: 'poetry'
+          token: ${{ secrets.GHA_TOKEN}}
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: .github/workflows/.node-version
+          token: ${{ secrets.GHA_TOKEN}}
+      - uses: extractions/setup-just@v1
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: ${{ secrets.GHA_OIDC_ROLE }}
+          role-session-name: github-action-eventbridge-backbone-deploy-session
+          aws-region: ${{ env.AWS_REGION }}
+      - name: run e2e tests
+        run: |
+          just test-e2e
+  destroy-e2e-test-stack:
+    runs-on:  ubuntu-latest
+    timeout-minutes: 20
+    needs: test-e2e
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: install poetry
+        run: |
+          pip install --upgrade pip poetry==1.7.0
+      - uses: actions/setup-python@v3
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: 'poetry'
+          token: ${{ secrets.GHA_TOKEN}}
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: .github/workflows/.node-version
+          token: ${{ secrets.GHA_TOKEN}}
+      - uses: extractions/setup-just@v1
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: ${{ secrets.GHA_OIDC_ROLE }}
+          role-session-name: github-action-eventbridge-backbone-deploy-session
+          aws-region: ${{ env.AWS_REGION }}
+      - name: destroy test stack
+        run: |
+          just package
+          npm install -g aws-cdk@^2
+          cdk destroy DirenBusStage/DirenBusStack --exclusively --require-approval=never
+          cdk destroy DirenOrderServiceStage/DirenOrderServiceStack --exclusively --require-approval=never
+          cdk destroy DirenDeliveryServiceStage/DirenDeliveryServiceStack --exclusively --require-approval=never

@@ -1,5 +1,6 @@
 from aws_cdk import App
 from aws_cdk.assertions import Template
+from syrupy.filters import props
 
 from cdk.stacks.bus_stack import BusStack
 from cdk.stacks.delivery_stack import DeliveryServiceStack
@@ -36,6 +37,6 @@ def test_stacks_synthesizes_properly(snapshot):
     template_bus_stack = Template.from_stack(bus_stack)
 
     template_delivery_stack.resource_count_is("AWS::Lambda::Function", 3)
-    assert template_delivery_stack.to_json() == snapshot()
-    assert template_bus_stack.to_json() == snapshot()
-    assert template_order_stack.to_json() == snapshot()
+    assert template_delivery_stack.to_json() == snapshot(exclude=props("S3Key"))
+    assert template_bus_stack.to_json() == snapshot(exclude=props("S3Key"))
+    assert template_order_stack.to_json() == snapshot(exclude=props("S3Key"))

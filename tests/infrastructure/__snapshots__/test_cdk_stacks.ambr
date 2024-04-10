@@ -31,7 +31,6 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': '17c16a3854838fd3ff4bda08146122a6701f33b9c86ae17f415ad0dc47a97544.zip',
           }),
           'Handler': 'index.handler',
           'Role': dict({
@@ -152,7 +151,7 @@
       }),
       'LocalBus62E293B7': dict({
         'Properties': dict({
-          'Name': 'local-bus-test-delivery-service-identifier',
+          'Name': 'd-local-bus-test-delivery-service-identifier',
         }),
         'Type': 'AWS::Events::EventBus',
       }),
@@ -182,7 +181,7 @@
               ]),
             }),
           }),
-          'StatementId': 'local-bus-policy-stmt-test-delivery-service-identifier',
+          'StatementId': 'd-local-bus-policy-stmt-test-delivery-service-identifier',
         }),
         'Type': 'AWS::Events::EventBusPolicy',
       }),
@@ -231,7 +230,6 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': '4e26bf2d0a26f2097fb2b261f22bb51e3f6b4b52635777b1e54edbd8e2d58c35.zip',
           }),
           'Handler': 'index.handler',
           'Role': dict({
@@ -308,7 +306,6 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': 'cd6a93b5b0f34efaea43b370ae33a3e31ff5032ae5a270602ce4cbb5e46a4be5.zip',
           }),
           'Environment': dict({
             'Variables': dict({
@@ -547,7 +544,6 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': '17c16a3854838fd3ff4bda08146122a6701f33b9c86ae17f415ad0dc47a97544.zip',
           }),
           'Handler': 'index.handler',
           'Role': dict({
@@ -643,7 +639,9 @@
             'Action': 'events:PutEvents',
             'Effect': 'Allow',
             'Principal': dict({
-              'AWS': '123456789012',
+              'AWS': list([
+                '123456789012',
+              ]),
             }),
             'Resource': dict({
               'Fn::GetAtt': list([
@@ -764,7 +762,7 @@
                     dict({
                       'Ref': 'AWS::Region',
                     }),
-                    ':123456789012:event-bus/local-bus-test-bus-identifier',
+                    ':123456789012:event-bus/d-local-bus-test-bus-identifier',
                   ]),
                 ]),
               }),
@@ -812,7 +810,7 @@
                       dict({
                         'Ref': 'AWS::Region',
                       }),
-                      ':123456789012:event-bus/local-bus-test-bus-identifier',
+                      ':123456789012:event-bus/d-local-bus-test-bus-identifier',
                     ]),
                   ]),
                 }),
@@ -934,7 +932,6 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': '17c16a3854838fd3ff4bda08146122a6701f33b9c86ae17f415ad0dc47a97544.zip',
           }),
           'Handler': 'index.handler',
           'Role': dict({
@@ -987,7 +984,6 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': 'cd6a93b5b0f34efaea43b370ae33a3e31ff5032ae5a270602ce4cbb5e46a4be5.zip',
           }),
           'Environment': dict({
             'Variables': dict({
@@ -1179,7 +1175,6 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': 'cd6a93b5b0f34efaea43b370ae33a3e31ff5032ae5a270602ce4cbb5e46a4be5.zip',
           }),
           'Environment': dict({
             'Variables': dict({
@@ -1394,7 +1389,7 @@
       }),
       'LocalBus62E293B7': dict({
         'Properties': dict({
-          'Name': 'local-bus-test-order-service-identifier',
+          'Name': 'd-local-bus-test-order-service-identifier',
         }),
         'Type': 'AWS::Events::EventBus',
       }),
@@ -1424,7 +1419,7 @@
               ]),
             }),
           }),
-          'StatementId': 'local-bus-policy-stmt-test-order-service-identifier',
+          'StatementId': 'd-local-bus-policy-stmt-test-order-service-identifier',
         }),
         'Type': 'AWS::Events::EventBusPolicy',
       }),
@@ -1473,7 +1468,6 @@
         'Properties': dict({
           'Code': dict({
             'S3Bucket': 'cdk-hnb659fds-assets-123456789012-eu-west-1',
-            'S3Key': '4e26bf2d0a26f2097fb2b261f22bb51e3f6b4b52635777b1e54edbd8e2d58c35.zip',
           }),
           'Handler': 'index.handler',
           'Role': dict({
